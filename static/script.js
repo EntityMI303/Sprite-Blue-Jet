@@ -55,8 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const season = data.season;
             const year = parseInt(data.year);
             const month = parseInt(data.month);
-            const weeks = parseInt(data.weeks);
-            const days = parseInt(data.days);
             const marketingBudget = parseFloat(data.marketing_budget);
 
             const seasonAdjustments = {
@@ -67,7 +65,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 all_seasons: 0
             };
 
-            let totalDays = days + (weeks * 7) + (month * 30) + (year * 365) + seasonAdjustments[season];
+            // Only months (3,6,9) and years are considered now
+            let totalDays = (month * 30) + (year * 365) + seasonAdjustments[season];
             const today = new Date();
             const futureDate = new Date();
             futureDate.setDate(today.getDate() + totalDays);

@@ -22,7 +22,6 @@ def query_huggingface(prompt):
         )
         if response.status_code == 200:
             result = response.json()
-            # result is usually a list of dicts with 'generated_text'
             if isinstance(result, list) and "generated_text" in result[0]:
                 return result[0]["generated_text"]
             return str(result)
@@ -38,6 +37,11 @@ def home():
 @app.route('/predict-future-sales', methods=['GET', 'POST'])
 def sales():
     if request.method == 'POST':
+        # Only accept months = 3, 6, 9
+        month = int(request.form.get('month', 0))
+        if month not in [3, 6, 9]:
+            return "Invalid month selection. Only 3, 6, or 9 months are allowed.", 400
+
         data = {
             'previous_sales': request.form.get('previous_sales'),
             'product': request.form.get('product'),
@@ -45,9 +49,7 @@ def sales():
             'marketing_budget': request.form.get('marketing_budget'),
             'season': request.form.get('season'),
             'year': request.form.get('year'),
-            'month': request.form.get('month'),
-            'weeks': request.form.get('weeks'),
-            'days': request.form.get('days')
+            'month': month
         }
         session['sales_data'] = data
         file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
@@ -105,4 +107,5 @@ def health():
     return "OK", 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Ensure Flask binds to Render's dynamic port
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
