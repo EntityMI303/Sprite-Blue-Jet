@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Sprite Blue Jet – Business Guide</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('sales') }}" class="nav-link">Sales Prediction</a>
+    </nav>
 
     <!-- Hero Section -->
     <header class="hero">
@@ -20,12 +28,6 @@
             <p>Estimate your company’s future revenue using real data and smart forecasting tools.</p>
             <a href="{{ url_for('sales') }}"><button>Try Sales Prediction</button></a>
         </div>
-
-        <div class="feature-box">
-            <h2>🚀 Business Improvements</h2>
-            <p>Discover strategies to grow faster and smarter. Optimize pricing, marketing, and product development.</p>
-            <a href="{{ url_for('improvement') }}"><button>Explore Improvement Guide</button></a>
-        </div>
     </section>
 
     <!-- Footer -->
@@ -34,4 +36,5 @@
     </footer>
 
 </body>
+
 </html>

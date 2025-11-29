@@ -1,3 +1,4 @@
+/* General page styling */
 body {
     background-color: #f0f8ff;
     font-family: Arial, sans-serif;
@@ -6,8 +7,39 @@ body {
     padding: 0;
 }
 
+/* Navigation Bar */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #0078d4;
+    /* subtle blue background */
+    padding: 12px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.nav-link {
+    display: inline-block;
+    margin: 0 15px;
+    padding: 10px 20px;
+    background-color: transparent;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 /* Hero Section */
 .hero {
+    margin-top: 60px;
+    /* push hero down so it’s not hidden under nav */
     background: linear-gradient(to right, #0077b6, #00b4d8);
     color: white;
     text-align: center;
@@ -23,12 +55,12 @@ body {
     font-size: 1.3em;
     margin-bottom: 20px;
 }
+
 /* Features Section */
 .features {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 60px 20px;
     background-color: #f0f8ff;
 }
 
@@ -37,19 +69,44 @@ body {
     color: white;
     width: 400px;
     margin: 20px;
-    padding: 30px;
+    padding: 40px;
     border-radius: 12px;
     text-align: center;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .feature-box h2 {
-    font-size: 1.5em;
-    margin-bottom: 10px;
+    font-size: 1.8em;
+    margin-bottom: 15px;
 }
 
 .feature-box p {
     font-size: 1.1em;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+/* Button styling */
+button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    font-size: 16px;
+    margin: 8px 4px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
 }
 
 /* Footer */
@@ -61,23 +118,16 @@ footer {
     color: #555;
 }
 
-/* Button styling */
-button {
-    background-color: #4CAF50;
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 8px 4px;
-    cursor: pointer;
-    border-radius: 12px;
-}
+/* Responsive layout for small screens */
+@media (max-width: 768px) {
+    .features {
+        flex-direction: column;
+        align-items: center;
+    }
 
-button:hover {
-    background-color: #45a049;
+    .feature-box {
+        width: 90%;
+    }
 }
 
 /* Layout container for form + chart */
@@ -174,40 +224,6 @@ button:hover {
     height: 100% !important;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive layout for small screens */
-@media (max-width: 768px) {
-    .layout-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .sales-container {
-        max-width: 100%;
-        margin-right: 0;
-        margin-bottom: 30px;
-    }
-
-    .chart-container {
-        max-width: 100%;
-        max-height: 100%;
-    }
-}
-
-.nav-link {
-    display: inline-block;
-    margin: 10px 15px;
-    padding: 10px 20px;
-    background-color: #0078d4;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: background-color 0.3s ease;
-}
-
-.nav-link:hover {
-    background-color: #005fa3;
 }
 
 .container{
