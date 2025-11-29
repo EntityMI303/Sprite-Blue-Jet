@@ -1,39 +1,16 @@
 from flask import Flask, render_template, request, session, send_file
-import json, os, sys, requests
-from dotenv import load_dotenv
-
-load_dotenv()
+import json, os, sys
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "business25")
-
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
-HF_MODEL = "distilgpt2"
-
-def query_huggingface(prompt):
-    try:
-        response = requests.post(
-            f"https://api-inference.huggingface.co/models/{HF_MODEL}",
-            headers={"Authorization": f"Bearer {HF_API_TOKEN}"},
-            json={"inputs": prompt}
-        )
-        if response.status_code == 200:
-            result = response.json()
-            if isinstance(result, list) and "generated_text" in result[0]:
-                return result[0]["generated_text"]
-            return str(result)
-        else:
-            return f"Error from Hugging Face API: {response.text}"
-    except Exception as e:
-        return f"Exception calling Hugging Face API: {e}"
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
 # --- Sales Prediction Feature ---
-@app.route('/sales', methods=['GET', 'POST'])
-def sales():
+@app.route('/predict-future-sales', methods=['GET', 'POST'])
+def predict_future_sales():
     if request.method == 'POST':
         try:
             month = int(request.form.get('month', 0))
@@ -52,11 +29,14 @@ def sales():
             'year': request.form.get('year'),
             'month': month
         }
+        # Save data in session and file
         session['sales_data'] = data
         file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=2)
-        return '', 204
+
+        # Redirect to improvement page after submission
+        return render_template('improvement.html', data=data)
 
     return render_template('sales.html')
 
@@ -67,22 +47,11 @@ def download_sales():
         return send_file(file_path, as_attachment=True)
     return "sales_data.json not found", 404
 
-# --- New Business Feature Routes ---
-@app.route('/finance')
-def finance():
-    return "<h1>💰 Financial Planning</h1><p>Coming Soon...</p>"
-
-@app.route('/operations')
-def operations():
-    return "<h1>⚙️ Operations Management</h1><p>Coming Soon...</p>"
-
-@app.route('/customers')
-def customers():
-    return "<h1>👥 Customer Insights</h1><p>Coming Soon...</p>"
-
-@app.route('/hr')
-def hr():
-    return "<h1>🧑‍💼 HR & Team Management</h1><p>Coming Soon...</p>"
+# --- Improvement Guide ---
+@app.route('/improvement')
+def improvement():
+    data = session.get('sales_data')
+    return render_template('improvement.html', data=data)
 
 # --- Utility Routes ---
 @app.route('/version')
