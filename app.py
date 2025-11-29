@@ -35,8 +35,9 @@ def home():
 def sales():
     if request.method == 'POST':
         month = int(request.form.get('month', 0))
-        if month not in [3, 6, 9]:
-            return "Invalid month selection. Only 3, 6, or 9 months are allowed.", 400
+        # ✅ Now allow 0, 3, 6, or 9 months
+        if month not in [0, 3, 6, 9]:
+            return "Invalid month selection. Only 0, 3, 6, or 9 months are allowed.", 400
 
         data = {
             'previous_sales': request.form.get('previous_sales'),
@@ -72,7 +73,6 @@ def improvement():
     marketing_budget = float(data.get('marketing_budget', 0))
 
     predicted_sales = round(previous_sales * (1.1 + marketing_budget * 0.001), 2)
-
     data['predicted_sales'] = predicted_sales
 
     prompt = f"Sales data: {data}. Provide improvement suggestions in a professional tone."

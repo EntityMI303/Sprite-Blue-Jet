@@ -70,7 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
             calendarOutput.innerText =
                 `Sales prediction for ${product} launches on ${futureDate.toDateString()} (adjusted for ${season}).`;
 
-            const monthsAhead = Math.ceil(totalDays / 30);
+            // ✅ Handle 0 months gracefully
+            const monthsAhead = month === 0 ? (year * 12) : Math.ceil(totalDays / 30);
+
             labels = [];
             predictedData = [];
             marketingData = [];
