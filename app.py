@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
-import json, os, sys
+import json, os, sys, requests
 from dotenv import load_dotenv
-from transformers import pipeline
-import torch
 
 # Load environment variables from .env (optional)
 load_dotenv()
@@ -10,14 +8,28 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "business25")
 
-# Initialize local Hugging Face pipeline once at startup
-# Using distilgpt2 for lightweight text generation; replace with a larger model if desired
-local_generator = pipeline(
-    "text-generation",
-    model="distilgpt2",
-    torch_dtype=torch.float32,
-    device=-1  # -1 = CPU; use 0 if you have GPU
-)
+# Hugging Face API setup
+HF_API_TOKEN = os.getenv("HF_API_TOKEN")  # store your token in .env
+HF_MODEL = "distilgpt2"  # lightweight model
+
+def query_huggingface(prompt):
+    """Send text to Hugging Face Inference API and return generated output."""
+    try:
+        response = requests.post(
+            f"https://api-inference.huggingface.co/models/{HF_MODEL}",
+            headers={"Authorization": f"Bearer {HF_API_TOKEN}"},
+            json={"inputs": prompt}
+        )
+        if response.status_code == 200:
+            result = response.json()
+            # result is usually a list of dicts with 'generated_text'
+            if isinstance(result, list) and "generated_text" in result[0]:
+                return result[0]["generated_text"]
+            return str(result)
+        else:
+            return f"Error from Hugging Face API: {response.text}"
+    except Exception as e:
+        return f"Exception calling Hugging Face API: {e}"
 
 @app.route('/')
 def home():
@@ -68,13 +80,9 @@ def improvement():
     data['predicted_sales'] = predicted_sales
     data['actual_sales'] = actual_sales
 
-    # Local AI feedback using Transformers + Torch
-    try:
-        prompt = f"Sales data: {data}. Provide improvement suggestions in a professional tone."
-        local_output = local_generator(prompt, max_length=150, num_return_sequences=1)
-        ai_feedback = local_output[0]["generated_text"]
-    except Exception as e:
-        ai_feedback = f"Error generating local AI feedback: {e}"
+    # AI feedback via Hugging Face API
+    prompt = f"Sales data: {data}. Provide improvement suggestions in a professional tone."
+    ai_feedback = query_huggingface(prompt)
 
     return render_template('improvement.html', data=data, feedback=ai_feedback)
 
