@@ -35,7 +35,11 @@ def home():
 @app.route('/sales', methods=['GET', 'POST'])
 def sales():
     if request.method == 'POST':
-        month = int(request.form.get('month', 0))
+        try:
+            month = int(request.form.get('month', 0))
+        except ValueError:
+            return "Invalid month value", 400
+
         if month not in [0, 3, 6, 9]:
             return "Invalid month selection. Only 0, 3, 6, or 9 months are allowed.", 400
 
