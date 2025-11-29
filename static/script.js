@@ -201,10 +201,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const predictedSales = parseFloat(improvementCanvas.dataset.predicted || 0);
         const marketingImpact = parseFloat(improvementCanvas.dataset.marketing || 0);
 
+        // ✅ Read timeframe string passed from app.py
+        const timeframe = improvementCanvas.dataset.timeframe || "";
+
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Previous Sales', 'Predicted Sales', 'Marketing Impact'],
+                labels: [
+                    'Previous Sales',
+                    `Predicted Sales (${timeframe})`,
+                    'Marketing Budget'
+                ],
                 datasets: [{
                     label: 'Comparison ($)',
                     data: [previousSales, predictedSales, marketingImpact],

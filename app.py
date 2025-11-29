@@ -35,7 +35,7 @@ def home():
 def sales():
     if request.method == 'POST':
         month = int(request.form.get('month', 0))
-        # ✅ Now allow 0, 3, 6, or 9 months
+        # ✅ Allow 0, 3, 6, or 9 months
         if month not in [0, 3, 6, 9]:
             return "Invalid month selection. Only 0, 3, 6, or 9 months are allowed.", 400
 
@@ -71,11 +71,20 @@ def improvement():
 
     previous_sales = float(data.get('previous_sales', 0))
     marketing_budget = float(data.get('marketing_budget', 0))
+    year = int(data.get('year', 0))
+    month = int(data.get('month', 0))
 
+    # ✅ Predicted sales calculation
     predicted_sales = round(previous_sales * (1.1 + marketing_budget * 0.001), 2)
     data['predicted_sales'] = predicted_sales
 
-    prompt = f"Sales data: {data}. Provide improvement suggestions in a professional tone."
+    # ✅ Add timeframe string for UI
+    data['timeframe'] = f"{year} years, {month} months"
+
+    prompt = (
+        f"Sales data: {data}. Provide improvement suggestions in a professional tone, "
+        f"considering the timeframe of {year} years and {month} months."
+    )
     ai_feedback = query_huggingface(prompt)
 
     return render_template('improvement.html', data=data, feedback=ai_feedback)
