@@ -11,7 +11,6 @@
 
     <!-- Navigation Bar -->
     <nav>
-        <a href="{{ url_for('home') }}" class="nav-link">Home</a>
         <a href="{{ url_for('sales') }}" class="nav-link">Sales Prediction</a>
     </nav>
 
@@ -21,12 +20,34 @@
         <p>Your all-in-one guide to smarter business decisions</p>
     </header>
 
-    <!-- Features Section -->
-    <section class="features">
+    <!-- Features Section (Horizontal Scroll) -->
+    <section class="features-scroll">
+        <!-- Financial Planning -->
         <div class="feature-box">
-            <h2>📈 Future Sales Predictions</h2>
-            <p>Estimate your company’s future revenue using real data and smart forecasting tools.</p>
-            <a href="{{ url_for('sales') }}"><button>Try Sales Prediction</button></a>
+            <h2>💰 Financial Planning</h2>
+            <p>Track budgets, manage expenses, and forecast profits to keep your business financially healthy.</p>
+            <a href="#"><button>Explore Financial Tools</button></a>
+        </div>
+
+        <!-- Operations Management -->
+        <div class="feature-box">
+            <h2>⚙️ Operations Management</h2>
+            <p>Optimize workflows, improve efficiency, and monitor productivity across your teams.</p>
+            <a href="#"><button>View Operations Dashboard</button></a>
+        </div>
+
+        <!-- Customer Insights -->
+        <div class="feature-box">
+            <h2>👥 Customer Insights</h2>
+            <p>Analyze customer behavior, satisfaction, and retention to strengthen relationships and loyalty.</p>
+            <a href="#"><button>Check Customer Analytics</button></a>
+        </div>
+
+        <!-- HR & Team Management -->
+        <div class="feature-box">
+            <h2>🧑‍💼 HR & Team Management</h2>
+            <p>Manage employee performance, recruitment, and engagement to build stronger teams.</p>
+            <a href="#"><button>Manage HR Tools</button></a>
         </div>
     </section>
 

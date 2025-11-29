@@ -56,24 +56,36 @@ nav {
     margin-bottom: 20px;
 }
 
-/* Features Section */
-.features {
+/* Features Section - Horizontal Scroll */
+.features-scroll {
     display: flex;
-    justify-content: center;
-    padding: 60px 20px;
-    background-color: #f0f8ff;
+    overflow-x: auto;
+    padding: 40px 20px;
+    gap: 20px;
+    scroll-snap-type: x mandatory;
+}
+
+.features-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.features-scroll::-webkit-scrollbar-thumb {
+    background: #0078d4;
+    border-radius: 4px;
 }
 
 .feature-box {
+    flex: 0 0 auto;
+    width: 300px;
     background-color: slategray;
     color: white;
-    width: 400px;
-    margin: 20px;
-    padding: 40px;
+    margin: 10px;
+    padding: 30px;
     border-radius: 12px;
     text-align: center;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    scroll-snap-align: start;
 }
 
 .feature-box:hover {
@@ -82,13 +94,13 @@ nav {
 }
 
 .feature-box h2 {
-    font-size: 1.8em;
-    margin-bottom: 15px;
+    font-size: 1.6em;
+    margin-bottom: 12px;
 }
 
 .feature-box p {
     font-size: 1.1em;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 /* Button styling */
@@ -96,7 +108,7 @@ button {
     background-color: #4CAF50;
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: 12px 28px;
     text-align: center;
     font-size: 16px;
     margin: 8px 4px;
@@ -120,13 +132,13 @@ footer {
 
 /* Responsive layout for small screens */
 @media (max-width: 768px) {
-    .features {
-        flex-direction: column;
-        align-items: center;
+    .features-scroll {
+        flex-direction: row;
+        overflow-x: scroll;
     }
 
     .feature-box {
-        width: 90%;
+        width: 80%;
     }
 }
 
@@ -215,6 +227,7 @@ footer {
     margin-bottom: 10px;
     font-size: 1.1em;
 }
+
 .chart-controls input {
     margin-right: 8px;
 }
@@ -226,13 +239,13 @@ footer {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.container{
+.container {
     width: 80%;
     margin: auto;
     padding: 20px;
 }
 
-.chart{
+.chart {
     background-color: #ffffff;
     padding: 20px;
     border-radius: 12px;

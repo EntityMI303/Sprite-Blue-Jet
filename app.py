@@ -35,7 +35,6 @@ def home():
 def sales():
     if request.method == 'POST':
         month = int(request.form.get('month', 0))
-        # ✅ Allow 0, 3, 6, or 9 months
         if month not in [0, 3, 6, 9]:
             return "Invalid month selection. Only 0, 3, 6, or 9 months are allowed.", 400
 
@@ -63,39 +62,22 @@ def download_sales():
         return send_file(file_path, as_attachment=True)
     return "sales_data.json not found", 404
 
-@app.route('/business-improvement-guide')
-def improvement():
-    data = session.get('sales_data')
-    if not data:
-        return redirect(url_for('sales'))
+# --- New Placeholder Routes for Business Features ---
+@app.route('/finance')
+def finance():
+    return "<h1>💰 Financial Planning</h1><p>Coming Soon...</p>"
 
-    previous_sales = float(data.get('previous_sales', 0))
-    marketing_budget = float(data.get('marketing_budget', 0))
-    year = int(data.get('year', 0))
-    month = int(data.get('month', 0))
+@app.route('/operations')
+def operations():
+    return "<h1>⚙️ Operations Management</h1><p>Coming Soon...</p>"
 
-    # ✅ Predicted sales calculation
-    predicted_sales = round(previous_sales * (1.1 + marketing_budget * 0.001), 2)
-    data['predicted_sales'] = predicted_sales
+@app.route('/customers')
+def customers():
+    return "<h1>👥 Customer Insights</h1><p>Coming Soon...</p>"
 
-    # ✅ Add timeframe string for UI
-    data['timeframe'] = f"{year} years, {month} months"
-
-    prompt = (
-        f"Sales data: {data}. Provide improvement suggestions in a professional tone, "
-        f"considering the timeframe of {year} years and {month} months."
-    )
-    ai_feedback = query_huggingface(prompt)
-
-    return render_template('improvement.html', data=data, feedback=ai_feedback)
-
-@app.route('/update-sales-data', methods=['POST'])
-def update_sales_data():
-    updated = request.get_json()
-    file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
-    with open(file_path, 'w') as f:
-        json.dump(updated, f, indent=2)
-    return '', 204
+@app.route('/hr')
+def hr():
+    return "<h1>🧑‍💼 HR & Team Management</h1><p>Coming Soon...</p>"
 
 @app.route('/version')
 def version():
