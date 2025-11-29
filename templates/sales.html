@@ -4,7 +4,6 @@
 <head>
     <title>Sales Prediction</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Chart.js + Plugins -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@latest"></script>
@@ -13,7 +12,6 @@
 
 <body>
     <div class="layout-container">
-        <!-- Form Section -->
         <div class="sales-container">
             <h1>Sales Prediction</h1>
             <form method="POST" action="/predict-future-sales">
@@ -57,11 +55,9 @@
             <a href="{{ url_for('improvement') }}"><button>Go to Improvement Guide</button></a>
         </div>
 
-        <!-- Chart Section -->
         <div class="chart">
             <div class="chart-controls">
                 <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
-                <label><input type="checkbox" id="toggleActual" checked> Show Actual Sales</label>
                 <label><input type="checkbox" id="toggleMarketing" checked> Show Marketing Impact</label>
                 <button id="downloadCSV">Download CSV</button>
             </div>

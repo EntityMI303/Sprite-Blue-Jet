@@ -1,11 +1,10 @@
 // Utility function to convert chart data to CSV
-function exportToCSV(labels, predictedData, actualData, marketingData) {
-    let csvContent = "Month,Predicted Sales,Actual Sales,Marketing Impact\n";
+function exportToCSV(labels, predictedData, marketingData) {
+    let csvContent = "Month,Predicted Sales,Marketing Impact\n";
     for (let i = 0; i < labels.length; i++) {
         const row = [
             labels[i],
             predictedData[i] || "",
-            actualData[i] || "",
             marketingData[i] || ""
         ].join(",");
         csvContent += row + "\n";
@@ -29,13 +28,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const calendarOutput = document.getElementById("salesCalendar");
 
     const togglePredicted = document.getElementById("togglePredicted");
-    const toggleActual = document.getElementById("toggleActual");
     const toggleMarketing = document.getElementById("toggleMarketing");
     const downloadBtn = document.getElementById("downloadCSV");
 
     let labels = [];
     let predictedData = [];
-    let actualData = [];
     let marketingData = [];
 
     if (form && chartCanvas) {
@@ -65,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 all_seasons: 0
             };
 
-            // Only months (3,6,9) and years are considered now
             let totalDays = (month * 30) + (year * 365) + seasonAdjustments[season];
             const today = new Date();
             const futureDate = new Date();
@@ -77,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const monthsAhead = Math.ceil(totalDays / 30);
             labels = [];
             predictedData = [];
-            actualData = [];
             marketingData = [];
             let currentSales = previous_sales;
 
@@ -88,9 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 currentSales *= (0.95 + Math.random() * 0.2);
                 predictedData.push(parseFloat(currentSales.toFixed(2)));
-
-                const actualSales = currentSales * (0.9 + Math.random() * 0.2);
-                actualData.push(parseFloat(actualSales.toFixed(2)));
 
                 const marketingBoost = marketingBudget * (0.01 + Math.random() * 0.05);
                 marketingData.push(parseFloat((currentSales + marketingBoost).toFixed(2)));
@@ -110,13 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             data: predictedData,
                             borderColor: 'blue',
                             backgroundColor: 'blue',
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Actual Sales',
-                            data: actualData,
-                            borderColor: 'green',
-                            backgroundColor: 'green',
                             tension: 0.3
                         },
                         {
@@ -164,8 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     body: JSON.stringify({
                                         labels: labels,
                                         predicted: window.salesChartInstance.data.datasets[0].data,
-                                        actual: window.salesChartInstance.data.datasets[1].data,
-                                        marketing: window.salesChartInstance.data.datasets[2].data
+                                        marketing: window.salesChartInstance.data.datasets[1].data
                                     })
                                 });
                             }
@@ -184,19 +168,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        if (toggleActual) {
-            toggleActual.addEventListener("change", function () {
-                if (window.salesChartInstance) {
-                    window.salesChartInstance.setDatasetVisibility(1, toggleActual.checked);
-                    window.salesChartInstance.update();
-                }
-            });
-        }
-
         if (toggleMarketing) {
             toggleMarketing.addEventListener("change", function () {
                 if (window.salesChartInstance) {
-                    window.salesChartInstance.setDatasetVisibility(2, toggleMarketing.checked);
+                    window.salesChartInstance.setDatasetVisibility(1, toggleMarketing.checked);
                     window.salesChartInstance.update();
                 }
             });
@@ -205,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (downloadBtn) {
             downloadBtn.addEventListener("click", function () {
                 if (labels.length > 0) {
-                    exportToCSV(labels, predictedData, actualData, marketingData);
+                    exportToCSV(labels, predictedData, marketingData);
                 } else {
                     alert("No data available to export. Please run a prediction first.");
                 }
@@ -222,17 +197,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const previousSales = parseFloat(improvementCanvas.dataset.previous || 0);
         const predictedSales = parseFloat(improvementCanvas.dataset.predicted || 0);
-        const actualSales = parseFloat(improvementCanvas.dataset.actual || 0);
         const marketingImpact = parseFloat(improvementCanvas.dataset.marketing || 0);
 
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Previous Sales', 'Predicted Sales', 'Actual Sales', 'Marketing Impact'],
+                labels: ['Previous Sales', 'Predicted Sales', 'Marketing Impact'],
                 datasets: [{
                     label: 'Comparison ($)',
-                    data: [previousSales, predictedSales, actualSales, marketingImpact],
-                    backgroundColor: ['blue', 'purple', 'green', 'orange']
+                    data: [previousSales, predictedSales, marketingImpact],
+                    backgroundColor: ['blue', 'purple', 'orange']
                 }]
             },
             options: {

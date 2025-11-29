@@ -2,18 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 import json, os, sys, requests
 from dotenv import load_dotenv
 
-# Load environment variables from .env (optional)
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "business25")
 
-# Hugging Face API setup
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")  # store your token in .env
-HF_MODEL = "distilgpt2"  # lightweight model
+HF_API_TOKEN = os.getenv("HF_API_TOKEN")
+HF_MODEL = "distilgpt2"
 
 def query_huggingface(prompt):
-    """Send text to Hugging Face Inference API and return generated output."""
     try:
         response = requests.post(
             f"https://api-inference.huggingface.co/models/{HF_MODEL}",
@@ -37,7 +34,6 @@ def home():
 @app.route('/predict-future-sales', methods=['GET', 'POST'])
 def sales():
     if request.method == 'POST':
-        # Only accept months = 3, 6, 9
         month = int(request.form.get('month', 0))
         if month not in [3, 6, 9]:
             return "Invalid month selection. Only 3, 6, or 9 months are allowed.", 400
@@ -75,14 +71,10 @@ def improvement():
     previous_sales = float(data.get('previous_sales', 0))
     marketing_budget = float(data.get('marketing_budget', 0))
 
-    # Simulated predicted and actual sales
     predicted_sales = round(previous_sales * (1.1 + marketing_budget * 0.001), 2)
-    actual_sales = round(predicted_sales * (0.95 + 0.1), 2)
 
     data['predicted_sales'] = predicted_sales
-    data['actual_sales'] = actual_sales
 
-    # AI feedback via Hugging Face API
     prompt = f"Sales data: {data}. Provide improvement suggestions in a professional tone."
     ai_feedback = query_huggingface(prompt)
 
@@ -96,16 +88,13 @@ def update_sales_data():
         json.dump(updated, f, indent=2)
     return '', 204
 
-# ✅ New route: check Python version
 @app.route('/version')
 def version():
     return f"Python version: {sys.version}"
 
-# ✅ New route: health check
 @app.route('/health')
 def health():
     return "OK", 200
 
 if __name__ == '__main__':
-    # Ensure Flask binds to Render's dynamic port
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)

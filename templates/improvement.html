@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Improvement Guide</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -14,12 +15,14 @@
             font-size: 1.1em;
             line-height: 1.5;
         }
+
         .chart-container {
             height: 400px;
             margin-top: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="layout-container">
         <div class="sales-container">
@@ -29,7 +32,7 @@
                 <li>Price: ${{ data.price }}</li>
                 <li>Marketing Budget: ${{ data.marketing_budget }}</li>
                 <li>Season: {{ data.season }}</li>
-                <li>Timeframe: {{ data.year }} years, {{ data.month }} months, {{ data.weeks }} weeks, {{ data.days }} days</li>
+                <li>Timeframe: {{ data.year }} years, {{ data.month }} months</li>
             </ul>
 
             <h2>AI Feedback</h2>
@@ -39,11 +42,8 @@
 
             <h2>Visual Insight</h2>
             <div class="chart-container">
-                <canvas id="improvementChart" 
-                    data-previous="{{ data.previous_sales }}" 
-                    data-predicted="{{ data.predicted_sales }}"
-                    data-actual="{{ data.actual_sales }}" 
-                    data-marketing="{{ data.marketing_budget }}">
+                <canvas id="improvementChart" data-previous="{{ data.previous_sales }}"
+                    data-predicted="{{ data.predicted_sales }}" data-marketing="{{ data.marketing_budget }}">
                 </canvas>
             </div>
 
