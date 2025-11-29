@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from flask import Flask, render_template, request, session, send_file
 import json, os, sys, requests
 from dotenv import load_dotenv
 
@@ -29,9 +29,10 @@ def query_huggingface(prompt):
 
 @app.route('/')
 def home():
-    return render_template('index.html', name="Sprite Blue Jet")
+    return render_template('index.html')
 
-@app.route('/predict-future-sales', methods=['GET', 'POST'])
+# --- Sales Prediction Feature ---
+@app.route('/sales', methods=['GET', 'POST'])
 def sales():
     if request.method == 'POST':
         month = int(request.form.get('month', 0))
@@ -62,7 +63,7 @@ def download_sales():
         return send_file(file_path, as_attachment=True)
     return "sales_data.json not found", 404
 
-# --- New Placeholder Routes for Business Features ---
+# --- New Business Feature Routes ---
 @app.route('/finance')
 def finance():
     return "<h1>💰 Financial Planning</h1><p>Coming Soon...</p>"
@@ -79,6 +80,7 @@ def customers():
 def hr():
     return "<h1>🧑‍💼 HR & Team Management</h1><p>Coming Soon...</p>"
 
+# --- Utility Routes ---
 @app.route('/version')
 def version():
     return f"Python version: {sys.version}"
