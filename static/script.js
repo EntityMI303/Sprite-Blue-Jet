@@ -18,8 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const downloadCSVBtn = document.getElementById("downloadCSV");
 
     const salesChartCanvas = document.getElementById("salesChart");
-    if (!salesChartCanvas) return; // Exit if no chart exists
-    const salesChartCtx = salesChartCanvas.getContext("2d");
+    const histogramCanvas = document.getElementById("histogramChart");
 
     // ============================
     // Toggle input fields
@@ -76,111 +75,169 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const predictedData = [];
         const marketingData = [];
+        const labels = [];
+        const previousData = [];
+
+        const today = new Date();
 
         for (let i = 0; i < monthsTotal; i++) {
+            // Actual month/year label
+            const labelDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
+            labels.push(labelDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+
+            // Seasonal multiplier
             const monthSeason = getSeasonForMonth(i);
             const seasonMultiplier = seasonalBoosts[monthSeason] ? 1 + seasonalBoosts[monthSeason] / 100 : 1;
 
+            // Base predicted sales
+            let predictedMonthSales = baseMonthlySales * seasonMultiplier;
+
+            // Random fluctuations ±5%
+            predictedMonthSales *= 1 + (Math.random() * 0.1 - 0.05);
+
+            // Marketing multiplier
             let marketingMultiplier = 1 + (marketingBudget * 0.05) / 100;
             if (marketingTimeframe?.value === "years") marketingMultiplier = 1 + (marketingBudget * 0.05 * 12) / 100;
-
-            const predictedMonthSales = baseMonthlySales * seasonMultiplier;
             const marketingMonthSales = predictedMonthSales * marketingMultiplier;
 
             predictedData.push(predictedMonthSales);
             marketingData.push(marketingMonthSales);
+            previousData.push(baseMonthlySales);
         }
 
-        return { months: monthsTotal, predictedData, marketingData };
+        return { labels, predictedData, marketingData, previousData };
     }
 
     // ============================
-    // Initialize empty Chart.js chart
+    // Initialize Charts
     // ============================
-    const salesChart = new Chart(salesChartCtx, {
-        type: "line",
-        data: {
-            labels: [],
-            datasets: [
-                {
-                    label: "Predicted Sales",
-                    data: [],
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    fill: true,
-                    hidden: !(togglePredictedCheckbox?.checked ?? true)
+    let salesChart, histogramChart;
+
+    function initCharts() {
+        if (salesChartCanvas) {
+            const ctx = salesChartCanvas.getContext("2d");
+            salesChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: "Predicted Sales",
+                            data: [],
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            backgroundColor: "rgba(75, 192, 192, 0.2)",
+                            fill: true,
+                            hidden: !(togglePredictedCheckbox?.checked ?? true)
+                        },
+                        {
+                            label: "Sales with Marketing",
+                            data: [],
+                            borderColor: "rgba(255, 99, 132, 1)",
+                            backgroundColor: "rgba(255, 99, 132, 0.2)",
+                            fill: true,
+                            hidden: !(toggleMarketingCheckbox?.checked ?? true)
+                        }
+                    ]
                 },
-                {
-                    label: "Sales with Marketing",
-                    data: [],
-                    borderColor: "rgba(255, 99, 132, 1)",
-                    backgroundColor: "rgba(255, 99, 132, 0.2)",
-                    fill: true,
-                    hidden: !(toggleMarketingCheckbox?.checked ?? true)
+                options: {
+                    responsive: true,
+                    plugins: {
+                        zoom: {
+                            pan: { enabled: true, mode: "x" },
+                            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.dataset.label}: $${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: "Date" } },
+                        y: { title: { display: true, text: "Sales ($)" }, beginAtZero: true }
+                    }
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                zoom: {
-                    pan: { enabled: true, mode: "x" },
-                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" }
-                },
-                dragData: {
-                    round: 2,
-                    onDragEnd: () => console.log("Data changed")
-                }
-            },
-            scales: {
-                x: { title: { display: true, text: "Months" } },
-                y: { title: { display: true, text: "Sales ($)" }, beginAtZero: true }
-            }
+            });
         }
-    });
+
+        if (histogramCanvas) {
+            const ctx = histogramCanvas.getContext("2d");
+            histogramChart = new Chart(ctx, {
+                type: "bar",
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.dataset.label}: $${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: "Date" } },
+                        y: { title: { display: true, text: "Sales ($)" }, beginAtZero: true }
+                    }
+                }
+            });
+        }
+    }
+
+    initCharts();
 
     // ============================
-    // Update chart (after clicking Predict)
+    // Update charts
     // ============================
-    function updateChart() {
-        const salesData = calculateSales();
-        const labels = Array.from({ length: salesData.months }, (_, i) => "Month " + (i + 1));
+    function updateCharts() {
+        const { labels, predictedData, marketingData, previousData } = calculateSales();
 
-        salesChart.data.labels = labels;
-        salesChart.data.datasets[0].data = salesData.predictedData;
-        salesChart.data.datasets[0].hidden = !(togglePredictedCheckbox?.checked ?? true);
-        salesChart.data.datasets[1].data = salesData.marketingData;
-        salesChart.data.datasets[1].hidden = !(toggleMarketingCheckbox?.checked ?? true);
-        salesChart.update();
+        if (salesChart) {
+            salesChart.data.labels = labels;
+            salesChart.data.datasets[0].data = predictedData;
+            salesChart.data.datasets[0].hidden = !(togglePredictedCheckbox?.checked ?? true);
+            salesChart.data.datasets[1].data = marketingData;
+            salesChart.data.datasets[1].hidden = !(toggleMarketingCheckbox?.checked ?? true);
+            salesChart.update();
+        }
+
+        if (histogramChart) {
+            histogramChart.data.labels = labels;
+            histogramChart.data.datasets = [
+                { label: "Previous Sales", data: previousData, backgroundColor: "rgba(100,149,237,0.6)" },
+                { label: "Predicted Sales", data: predictedData, backgroundColor: "rgba(60,179,113,0.6)" },
+                { label: "Sales with Marketing", data: marketingData, backgroundColor: "rgba(255,99,132,0.6)" }
+            ];
+            histogramChart.update();
+        }
     }
 
     // ============================
     // Event listeners
     // ============================
-    // Only generate chart on form submission
     const salesForm = document.querySelector("form");
     salesForm?.addEventListener("submit", function (e) {
-        e.preventDefault(); // prevent actual form submission
-        updateChart();
+        e.preventDefault();
+        updateCharts();
     });
 
-    togglePredictedCheckbox?.addEventListener("change", () => {
-        if (salesChart.data.labels.length > 0) salesChart.update();
-    });
-    toggleMarketingCheckbox?.addEventListener("change", () => {
-        if (salesChart.data.labels.length > 0) salesChart.update();
-    });
+    togglePredictedCheckbox?.addEventListener("change", updateCharts);
+    toggleMarketingCheckbox?.addEventListener("change", updateCharts);
 
     // ============================
     // CSV Export
     // ============================
     downloadCSVBtn?.addEventListener("click", () => {
-        if (!salesChart.data.labels.length) return; // no data yet
+        if (!salesChart || !salesChart.data.labels.length) return;
+
         const labels = salesChart.data.labels;
         const predicted = salesChart.data.datasets[0].data;
         const marketing = salesChart.data.datasets[1].data;
 
-        let csvContent = "Month,Predicted Sales,Sales with Marketing\n";
+        let csvContent = "Date,Predicted Sales,Sales with Marketing\n";
         labels.forEach((label, i) => {
             csvContent += `${label},${predicted[i]},${marketing[i]}\n`;
         });
