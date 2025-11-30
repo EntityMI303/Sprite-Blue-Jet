@@ -1,6 +1,6 @@
 // Utility function to convert chart data to CSV
 function exportToCSV(labels, predictedData, marketingData) {
-    let csvContent = "Month,Predicted Sales,Marketing Impact\n";
+    let csvContent = "Month,Predicted Sales,Sales Based On Market Investments\n";
     for (let i = 0; i < labels.length; i++) {
         const row = [
             labels[i],
@@ -31,6 +31,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const toggleMarketing = document.getElementById("toggleMarketing");
     const downloadBtn = document.getElementById("downloadCSV");
 
+    // Product type toggle blocks
+    const productType = document.getElementById("product_type");
+    const previousSalesBlock = document.getElementById("previousSalesBlock");
+    const volumeBlock = document.getElementById("volumeBlock");
+
+    // Toggle fields based on product type
+    function toggleProductFields() {
+        if (productType && productType.value === "old") {
+            previousSalesBlock.style.display = "block";
+            volumeBlock.style.display = "none";
+        } else {
+            previousSalesBlock.style.display = "none";
+            volumeBlock.style.display = "block";
+        }
+    }
+    if (productType) {
+        productType.addEventListener("change", toggleProductFields);
+        toggleProductFields();
+    }
+
     let labels = [];
     let predictedData = [];
     let marketingData = [];
@@ -42,17 +62,27 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-            await fetch("/predict-future-sales", {
+            await fetch("/sales", {
                 method: "POST",
                 body: formData
             });
 
-            const previous_sales = parseFloat(data.previous_sales);
             const product = data.product;
             const season = data.season;
             const year = parseInt(data.year);
             const month = parseInt(data.month);
             const marketingBudget = parseFloat(data.marketing_budget);
+            const timeframe = data.marketing_timeframe;
+
+            // Handle old vs new product
+            let currentSales = 0;
+            if (data.product_type === "old") {
+                currentSales = parseFloat(data.previous_sales);
+            } else {
+                const volume = parseInt(data.volume);
+                const price = parseFloat(data.price);
+                currentSales = volume * price; // base sales for new product
+            }
 
             const seasonAdjustments = {
                 spring: 15,
@@ -70,23 +100,28 @@ document.addEventListener("DOMContentLoaded", function () {
             calendarOutput.innerText =
                 `Sales prediction for ${product} launches on ${futureDate.toDateString()} (adjusted for ${season}).`;
 
-            // ✅ Handle 0 months gracefully
             const monthsAhead = month === 0 ? (year * 12) : Math.ceil(totalDays / 30);
 
             labels = [];
             predictedData = [];
             marketingData = [];
-            let currentSales = previous_sales;
 
             for (let i = 0; i < monthsAhead; i++) {
                 const monthLabel = new Date(today.getFullYear(), today.getMonth() + i, 1)
                     .toLocaleString('default', { month: 'short', year: 'numeric' });
                 labels.push(monthLabel);
 
+                // Sales growth/decay simulation
                 currentSales *= (0.95 + Math.random() * 0.2);
                 predictedData.push(parseFloat(currentSales.toFixed(2)));
 
-                const marketingBoost = marketingBudget * (0.01 + Math.random() * 0.05);
+                // Marketing impact adjusted by timeframe
+                let marketingBoost = 0;
+                if (timeframe === "months") {
+                    marketingBoost = marketingBudget * (0.01 + Math.random() * 0.05);
+                } else if (timeframe === "years") {
+                    marketingBoost = (marketingBudget / 12) * (0.01 + Math.random() * 0.05);
+                }
                 marketingData.push(parseFloat((currentSales + marketingBoost).toFixed(2)));
             }
 
@@ -107,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             tension: 0.3
                         },
                         {
-                            label: 'Marketing Impact',
+                            label: 'Sales Based On Market Investments',
                             data: marketingData,
                             borderColor: 'orange',
                             backgroundColor: 'orange',
@@ -200,8 +235,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const previousSales = parseFloat(improvementCanvas.dataset.previous || 0);
         const predictedSales = parseFloat(improvementCanvas.dataset.predicted || 0);
         const marketingImpact = parseFloat(improvementCanvas.dataset.marketing || 0);
-
-        // ✅ Read timeframe string passed from app.py
         const timeframe = improvementCanvas.dataset.timeframe || "";
 
         new Chart(ctx, {
@@ -210,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: [
                     'Previous Sales',
                     `Predicted Sales (${timeframe})`,
-                    'Marketing Budget'
+                    'Sales Calculated with Marketing Investments'
                 ],
                 datasets: [{
                     label: 'Comparison ($)',

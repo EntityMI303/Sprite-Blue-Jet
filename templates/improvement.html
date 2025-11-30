@@ -5,25 +5,32 @@
     <meta charset="UTF-8">
     <title>Improvement Guide</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 
 <body>
 
-    <!-- Hero Section -->
     <header class="hero">
         <h1>📊 Improvement Guide</h1>
         <p>Recommendations based on your submitted sales data</p>
     </header>
 
-    <!-- Improvement Content -->
     <div class="sales-container">
         {% if data %}
         <h2>Submitted Sales Data</h2>
         <ul>
-            <li><strong>Previous Sales:</strong> {{ data.previous_sales }}</li>
+            <li><strong>Product Type:</strong> {{ data.product_type }}</li>
             <li><strong>Product:</strong> {{ data.product }}</li>
             <li><strong>Price:</strong> {{ data.price }}</li>
+            {% if data.product_type == "old" %}
+            <li><strong>Previous Sales:</strong> {{ data.previous_sales }}</li>
+            <li><strong>Years of Previous Sales:</strong> {{ data.previous_sales_years }}</li>
+            {% else %}
+            <li><strong>Projected Volume:</strong> {{ data.volume }}</li>
+            {% endif %}
             <li><strong>Marketing Budget:</strong> {{ data.marketing_budget }}</li>
+            <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
             <li><strong>Season:</strong> {{ data.season }}</li>
             <li><strong>Years Covered:</strong> {{ data.year }}</li>
             <li><strong>Months Covered:</strong> {{ data.month }}</li>
@@ -31,23 +38,28 @@
 
         <h2>Improvement Suggestions</h2>
         <p>
-            {% if data.marketing_budget and data.season == "summer" %}
-            Consider increasing your marketing budget during summer months to maximize seasonal demand.
-            {% elif data.season == "winter" %}
-            Focus on promotions and discounts in winter to maintain steady sales.
+            {% if data.product_type == "new" %}
+            Since this is a new product, focus on building awareness and scaling volume.
+            Consider introductory pricing strategies and aggressive marketing in {{ data.season }}.
             {% else %}
-            Maintain balanced investment across all seasons for consistent growth.
+            With existing sales history, analyze trends across {{ data.previous_sales_years }} years.
+            If sales are declining, adjust pricing or increase marketing investments.
             {% endif %}
         </p>
         {% else %}
         <p>No sales data submitted yet.</p>
         {% endif %}
 
+        <!-- Chart for improvement comparison -->
+        <canvas id="improvementChart" data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
+            data-predicted="{{ data.volume if data.product_type == 'new' else data.previous_sales }}"
+            data-marketing="{{ data.marketing_budget }}" data-timeframe="{{ data.marketing_timeframe }}">
+        </canvas>
+
         <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
         <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
     </div>
 
-    <!-- Footer -->
     <footer>
         &copy; 2025 Sprite Blue Jet. Built for FBLA Coding & Programming.
     </footer>

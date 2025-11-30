@@ -5,6 +5,7 @@ body {
     text-align: center;
     margin: 0;
     padding: 0;
+    line-height: 1.6;
 }
 
 /* Navigation Bar */
@@ -14,7 +15,6 @@ nav {
     left: 0;
     width: 100%;
     background: #0078d4;
-    /* subtle blue background */
     padding: 12px 0;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -39,7 +39,6 @@ nav {
 /* Hero Section */
 .hero {
     margin-top: 60px;
-    /* push hero down so it’s not hidden under nav */
     background: linear-gradient(to right, #0077b6, #00b4d8);
     color: white;
     text-align: center;
@@ -140,6 +139,15 @@ footer {
     .feature-box {
         width: 80%;
     }
+
+    .layout-container {
+        flex-direction: column;
+    }
+
+    .chart {
+        width: 100%;
+        height: auto;
+    }
 }
 
 /* Layout container for form + chart */
@@ -232,19 +240,34 @@ footer {
     margin-right: 8px;
 }
 
-#salesChart {
+#salesChart,
+#improvementChart {
     width: 100% !important;
     height: 100% !important;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fafafa;
+    padding: 10px;
 }
 
-.container {
-    width: 80%;
-    margin: auto;
-    padding: 20px;
+/* Improvement Guide styling */
+.sales-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
 }
 
+.sales-container ul li {
+    background: #f9f9f9;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Chart wrapper */
 .chart {
     background-color: #ffffff;
     padding: 20px;
@@ -252,8 +275,10 @@ footer {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     height: 700px;
     width: 1200px;
+    margin: auto;
 }
 
+/* CSV Download Button */
 #downloadCSV {
     background-color: #0078d4;
     color: white;
