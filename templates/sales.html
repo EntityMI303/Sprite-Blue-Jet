@@ -22,7 +22,7 @@
         <div class="sales-container">
             <h2>Enter Product Details</h2>
 
-            <form method="POST" action="{{ url_for('sales') }}">
+            <form id="salesForm" method="POST" action="{{ url_for('sales') }}">
                 <label for="product_type">Product Type:</label>
                 <select id="product_type" name="product_type" required>
                     <option value="old">Existing Product</option>
@@ -96,7 +96,8 @@
             </div>
 
             <div class="chart-container" style="height: 400px;">
-                <canvas id="salesChart"></canvas>
+                <!-- IMPORTANT: ID must match script.js -->
+                <canvas id="histogramChart"></canvas>
             </div>
         </div>
     </div>
