@@ -35,7 +35,7 @@ def predict_future_sales():
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=2)
 
-        # Redirect to improvement page after submission
+        # After submission, go to improvement page
         return render_template('improvement.html', data=data)
 
     return render_template('sales.html')
@@ -52,6 +52,23 @@ def download_sales():
 def improvement():
     data = session.get('sales_data')
     return render_template('improvement.html', data=data)
+
+# --- Other Features ---
+@app.route('/finance')
+def finance():
+    return "<h1>💰 Financial Planning</h1><p>Coming Soon...</p>"
+
+@app.route('/operations')
+def operations():
+    return "<h1>⚙️ Operations Management</h1><p>Coming Soon...</p>"
+
+@app.route('/customers')
+def customers():
+    return "<h1>👥 Customer Insights</h1><p>Coming Soon...</p>"
+
+@app.route('/hr')
+def hr():
+    return "<h1>🧑‍💼 HR & Team Management</h1><p>Coming Soon...</p>"
 
 # --- Utility Routes ---
 @app.route('/version')

@@ -1,53 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <title>Improvement Guide</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <style>
-        .feedback-box {
-            background: #f4f8ff;
-            border-left: 4px solid #007bff;
-            padding: 15px;
-            margin: 20px 0;
-            font-size: 1.1em;
-            line-height: 1.5;
-        }
-
-        .chart-container {
-            height: 400px;
-            margin-top: 20px;
-        }
-    </style>
 </head>
 
 <body>
-    <div class="layout-container">
-        <div class="sales-container">
-            <h1>Improvement Guide for {{ data.product }}</h1>
-            <ul>
-                <li>Previous Sales: ${{ data.previous_sales }}</li>
-                <li>Predicted Sales (for {{ data.year }} years, {{ data.month }} months): ${{ data.predicted_sales }}</li>
-                <li>Marketing Budget: ${{ data.marketing_budget }}</li>
-                <li>Season: {{ data.season }}</li>
-            </ul>
 
-            <h2>AI Feedback</h2>
-            <div class="feedback-box">
-                {{ feedback }}
-            </div>
+    <!-- Hero Section -->
+    <header class="hero">
+        <h1>📊 Improvement Guide</h1>
+        <p>Recommendations based on your submitted sales data</p>
+    </header>
 
-            <h2>Visual Insight</h2>
-            <div class="chart-container">
-                <canvas id="improvementChart" data-previous="{{ data.previous_sales }}"
-                    data-predicted="{{ data.predicted_sales }}" data-marketing="{{ data.marketing_budget }}">
-                </canvas>
-            </div>
+    <!-- Improvement Content -->
+    <div class="sales-container">
+        {% if data %}
+        <h2>Submitted Sales Data</h2>
+        <ul>
+            <li><strong>Previous Sales:</strong> {{ data.previous_sales }}</li>
+            <li><strong>Product:</strong> {{ data.product }}</li>
+            <li><strong>Price:</strong> {{ data.price }}</li>
+            <li><strong>Marketing Budget:</strong> {{ data.marketing_budget }}</li>
+            <li><strong>Season:</strong> {{ data.season }}</li>
+            <li><strong>Years Covered:</strong> {{ data.year }}</li>
+            <li><strong>Months Covered:</strong> {{ data.month }}</li>
+        </ul>
 
-            <a href="{{ url_for('sales') }}"><button>Back to Sales</button></a>
-        </div>
+        <h2>Improvement Suggestions</h2>
+        <p>
+            {% if data.marketing_budget and data.season == "summer" %}
+            Consider increasing your marketing budget during summer months to maximize seasonal demand.
+            {% elif data.season == "winter" %}
+            Focus on promotions and discounts in winter to maintain steady sales.
+            {% else %}
+            Maintain balanced investment across all seasons for consistent growth.
+            {% endif %}
+        </p>
+        {% else %}
+        <p>No sales data submitted yet.</p>
+        {% endif %}
+
+        <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
+        <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
     </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 Sprite Blue Jet. Built for FBLA Coding & Programming.
+    </footer>
+
 </body>
+
 </html>
