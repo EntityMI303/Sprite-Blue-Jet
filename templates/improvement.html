@@ -59,18 +59,11 @@
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="chart">
-            <h2>Sales Forecast</h2>
-            <canvas id="salesChart"></canvas>
-            <div class="chart-controls" style="margin-top: 15px;">
-                <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
-                <label><input type="checkbox" id="toggleMarketing" checked> Apply Marketing Budget</label>
-                <button id="downloadCSV">Download CSV</button>
-            </div>
-
-            <h2 style="margin-top: 40px;">Comparison Histogram</h2>
+        <!-- Histogram Chart -->
+        <div class="chart-container">
+            <h2>Sales Comparison Histogram</h2>
             <canvas id="histogramChart"></canvas>
+            <button id="downloadCSV">Download CSV</button>
         </div>
 
         {% else %}
