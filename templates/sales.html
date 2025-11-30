@@ -14,6 +14,7 @@
     <div class="layout-container">
         <div class="sales-container">
             <h1>Sales Prediction</h1>
+
             <form method="POST" action="{{ url_for('sales') }}">
 
                 <label for="product_type">Is this a new or existing product?</label>
@@ -38,6 +39,18 @@
                 <label for="product">Product Name:</label>
                 <input type="text" id="product" name="product" required>
 
+                <!-- NEW: Product Category -->
+                <label for="product_category">Product Category (for seasonal boosts):</label>
+                <select id="product_category" name="product_category" required>
+                    <option value="">-- Select Category --</option>
+                    <option value="cars" data-boost='{"summer":12,"winter":8}'>Cars</option>
+                    <option value="toys" data-boost='{"summer":15,"winter":25,"fall":10}'>Toys</option>
+                    <option value="clothing" data-boost='{"fall":12,"winter":10}'>Clothing</option>
+                    <option value="electronics" data-boost='{"winter":20,"summer":8}'>Electronics</option>
+                    <option value="food" data-boost='{"summer":10,"winter":15}'>Food & Beverage</option>
+                    <option value="retail" data-boost='{"winter":10}'>General Retail</option>
+                </select>
+
                 <label for="price">Price ($):</label>
                 <input type="number" id="price" name="price" step="0.01" required>
 
@@ -48,6 +61,18 @@
                 <select id="marketing_timeframe" name="marketing_timeframe" required>
                     <option value="months">Months</option>
                     <option value="years">Years</option>
+                </select>
+
+                <!-- NEW: Marketing Investment Company w/ custom deviations -->
+                <label for="investment_company">Marketing Investment Company:</label>
+                <select id="investment_company" name="investment_company" required>
+                    <option value="">-- Select Company --</option>
+                    <option value="amazon" data-boostmin="9" data-boostmax="15">Amazon (9–15% sales increase)</option>
+                    <option value="apple" data-boostmin="5" data-boostmax="7">Apple Inc. (5–7% sales increase)</option>
+                    <option value="google" data-boostmin="9" data-boostmax="10">Google (9–10% sales increase)</option>
+                    <option value="nvidia" data-boostmin="50" data-boostmax="60">NVIDIA (50–60% sales increase)</option>
+                    <option value="broadcom" data-boostmin="25" data-boostmax="30">Broadcom (25–30% sales increase)
+                    </option>
                 </select>
 
                 <label for="season">Season:</label>
@@ -73,7 +98,17 @@
                 <input type="submit" value="Predict Sales">
             </form>
 
+            <h3>📈 Market Investment Deviations</h3>
+            <ul>
+                <li>Amazon: <b>9–15%</b> potential sales increase</li>
+                <li>Apple Inc.: <b>5–7%</b> potential sales increase</li>
+                <li>Google: <b>9–10%</b> potential sales increase</li>
+                <li>NVIDIA: <b>50–60%</b> potential sales increase</li>
+                <li>Broadcom: <b>25–30%</b> potential sales increase</li>
+            </ul>
+
             <h2 id="salesCalendar"></h2>
+
             <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
             <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
             <a href="{{ url_for('improvement') }}"><button>Go to Improvement Guide</button></a>
@@ -86,10 +121,12 @@
                     Investments</label>
                 <button id="downloadCSV">Download CSV</button>
             </div>
+
             <div class="chart-container" style="height: 400px;">
                 <canvas id="salesChart"></canvas>
             </div>
         </div>
     </div>
 </body>
+
 </html>

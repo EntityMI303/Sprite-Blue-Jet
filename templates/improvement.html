@@ -32,6 +32,7 @@
             <li><strong>Marketing Budget:</strong> {{ data.marketing_budget }}</li>
             <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
             <li><strong>Season:</strong> {{ data.season }}</li>
+            <li><strong>Investment Company:</strong> {{ data.investment_company }}</li>
             <li><strong>Years Covered:</strong> {{ data.year }}</li>
             <li><strong>Months Covered:</strong> {{ data.month }}</li>
         </ul>
@@ -46,18 +47,20 @@
             If sales are declining, adjust pricing or increase marketing investments.
             {% endif %}
         </p>
-        {% else %}
-        <p>No sales data submitted yet.</p>
-        {% endif %}
 
         <!-- Chart for improvement comparison -->
-        <canvas id="improvementChart" data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
+        <canvas id="improvementChart"
+            data-previous="{{ data.previous_sales if data.product_type == 'old' else data.volume | float * data.price | float }}"
             data-predicted="{{ data.volume if data.product_type == 'new' else data.previous_sales }}"
             data-marketing="{{ data.marketing_budget }}" data-timeframe="{{ data.marketing_timeframe }}">
         </canvas>
 
         <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
         <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
+
+        {% else %}
+        <p>No sales data submitted yet.</p>
+        {% endif %}
     </div>
 
     <footer>
