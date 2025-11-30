@@ -187,7 +187,8 @@ footer {
     text-align: left;
 }
 
-.sales-container h1 {
+.sales-container h1,
+.sales-container h2 {
     font-size: 24px;
     margin-bottom: 20px;
     color: #333;
@@ -279,6 +280,7 @@ footer {
     padding: 0;
     margin: 0 0 20px 0;
     display: inline-block;
+    width: 100%;
 }
 
 .sales-container ul li {

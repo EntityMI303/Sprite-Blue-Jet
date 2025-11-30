@@ -33,7 +33,7 @@
             <li><strong>Marketing Budget ($):</strong> {{ data.marketing_budget }}</li>
             <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
             <li><strong>Product Category:</strong> {{ data.product_category or "N/A" }}</li>
-            <li><strong>Season:</strong> {{ data.season }}</li>
+            <li><strong>Season:</strong> {{ data.season or "All Seasons" }}</li>
             <li><strong>Years to be predicted:</strong> {{ data.year }}</li>
             <li><strong>Months to be predicted:</strong> {{ data.month }}</li>
         </ul>
@@ -43,7 +43,7 @@
             {% if data.product_type == "new" %}
             Since this is a new product, focus on building awareness and scaling volume.
             Consider introductory pricing strategies and targeted marketing campaigns based on the product category.
-            Leverage seasonal boosts during {{ data.season }} for maximum impact.
+            Leverage seasonal boosts during {{ data.season or "all seasons" }} for maximum impact.
             {% else %}
             With existing sales history, analyze trends over {{ data.previous_sales_years }} years.
             If sales are declining, adjust pricing or increase marketing investments.
@@ -53,11 +53,11 @@
 
         <!-- Improvement comparison chart -->
         <div class="chart-container" style="height: 400px;">
-            <canvas id="improvementChart"
+            <canvas id="salesChart"
                 data-previous="{{ data.previous_annual_sales if data.product_type == 'old' else (data.volume | float * data.price | float) }}"
                 data-predicted="{{ (data.volume | float * data.price | float) if data.product_type == 'new' else data.previous_annual_sales }}"
                 data-marketing="{{ data.marketing_budget }}" data-timeframe="{{ data.marketing_timeframe }}"
-                data-category="{{ data.product_category or '' }}" data-season="{{ data.season }}">
+                data-category="{{ data.product_category or '' }}" data-season="{{ data.season or '' }}">
             </canvas>
         </div>
 

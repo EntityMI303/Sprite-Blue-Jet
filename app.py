@@ -18,7 +18,6 @@ def home():
 @app.route('/sales', methods=['GET', 'POST'])
 def sales():
     if request.method == 'POST':
-
         # ==========================
         # Collect form data
         # ==========================
@@ -26,7 +25,7 @@ def sales():
         product = request.form.get('product')
         marketing_timeframe = request.form.get('marketing_timeframe')
         product_category = request.form.get('product_category')
-        season = request.form.get('season')
+        season = request.form.get('season', 'All Seasons')  # default if empty
 
         try:
             month = int(request.form.get('month', 0))

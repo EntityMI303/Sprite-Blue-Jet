@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <title>Sales Prediction</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,13 +12,18 @@
 </head>
 
 <body>
+    <header class="hero">
+        <h1>📈 Sales Prediction</h1>
+        <p>Predict future sales based on your data and marketing strategy</p>
+    </header>
+
     <div class="layout-container">
+        <!-- Sales Input Form -->
         <div class="sales-container">
-            <h1>Sales Prediction</h1>
+            <h2>Enter Product Details</h2>
 
             <form method="POST" action="{{ url_for('sales') }}">
-
-                <label for="product_type">Is this a new or existing product?</label>
+                <label for="product_type">Product Type:</label>
                 <select id="product_type" name="product_type" required>
                     <option value="old">Existing Product</option>
                     <option value="new">New Product</option>
@@ -36,7 +42,7 @@
                 <label for="product">Product Name:</label>
                 <input type="text" id="product" name="product" required>
 
-                <label for="product_category">Product Category (for seasonal boosts in chart):</label>
+                <label for="product_category">Product Category (for seasonal boosts):</label>
                 <select id="product_category" name="product_category">
                     <option value="">-- Select Category --</option>
                     <option value="cars" data-boost='{"summer":12,"winter":8}'>Cars</option>
@@ -59,10 +65,10 @@
                     <option value="years">Years</option>
                 </select>
 
-                <label for="year">Years to be predicted:</label>
+                <label for="year">Years to Predict:</label>
                 <input type="number" id="year" name="year" min="1" max="30" required>
 
-                <label for="month">Months to be predicted:</label>
+                <label for="month">Additional Months to Predict:</label>
                 <select id="month" name="month" required>
                     <option value="0">0 months</option>
                     <option value="3">3 months</option>
@@ -73,18 +79,18 @@
                 <input type="submit" value="Predict Sales">
             </form>
 
-            <h2 id="salesCalendar"></h2>
-
-            <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
-            <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
-            <a href="{{ url_for('improvement') }}"><button>Go to Improvement Guide</button></a>
+            <div style="margin-top: 20px;">
+                <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
+                <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
+                <a href="{{ url_for('improvement') }}"><button>Go to Improvement Guide</button></a>
+            </div>
         </div>
 
+        <!-- Chart Section -->
         <div class="chart">
             <div class="chart-controls">
                 <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
-                <label><input type="checkbox" id="toggleMarketing" checked> Sales Based On Market
-                    Investments</label>
+                <label><input type="checkbox" id="toggleMarketing" checked> Apply Marketing Budget</label>
                 <button id="downloadCSV">Download CSV</button>
             </div>
 
@@ -93,6 +99,10 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        &copy; 2025 Sprite Blue Jet. Built for FBLA Coding & Programming.
+    </footer>
 </body>
 
 </html>

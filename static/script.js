@@ -12,18 +12,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const priceInput = document.getElementById("price");
     const yearInput = document.getElementById("year");
     const monthInput = document.getElementById("month");
-    const seasonSelect = document.getElementById("season");
 
     const togglePredictedCheckbox = document.getElementById("togglePredicted");
     const toggleMarketingCheckbox = document.getElementById("toggleMarketing");
     const downloadCSVBtn = document.getElementById("downloadCSV");
 
-    const salesChartCtx = document.getElementById("salesChart").getContext("2d");
+    const salesChartCanvas = document.getElementById("salesChart");
+    if (!salesChartCanvas) return; // Exit if no chart exists
+    const salesChartCtx = salesChartCanvas.getContext("2d");
 
     // ============================
     // Toggle input fields
     // ============================
     function toggleFields() {
+        if (!productTypeSelect) return;
         if (productTypeSelect.value === "old") {
             previousSalesBlock.style.display = "block";
             volumeBlock.style.display = "none";
@@ -33,14 +35,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    productTypeSelect.addEventListener("change", toggleFields);
-    toggleFields(); // initialize
+    if (productTypeSelect) {
+        productTypeSelect.addEventListener("change", toggleFields);
+        toggleFields();
+    }
 
     // ============================
-    // Helper: Get seasonal boost for a month
+    // Helper: Get season for month
     // ============================
     function getSeasonForMonth(monthIndex) {
-        const month = (monthIndex % 12) + 1; // 1–12
+        const month = (monthIndex % 12) + 1;
         if ([12, 1, 2].includes(month)) return "winter";
         if ([3, 4, 5].includes(month)) return "spring";
         if ([6, 7, 8].includes(month)) return "summer";
@@ -52,63 +56,48 @@ document.addEventListener("DOMContentLoaded", function () {
     // Calculate sales
     // ============================
     function calculateSales() {
-        let previousSales = parseFloat(document.getElementById("previous_sales").value) || 0;
-        let projectedVolume = parseFloat(document.getElementById("volume").value) || 0;
-        let price = parseFloat(priceInput.value) || 0;
-        let marketingBudget = parseFloat(marketingBudgetInput.value) || 0;
-        let years = parseInt(yearInput.value) || 1;
-        let months = parseInt(monthInput.value) || 0;
+        const previousSales = parseFloat(document.getElementById("previous_sales")?.value) || 0;
+        const projectedVolume = parseFloat(document.getElementById("volume")?.value) || 0;
+        const price = parseFloat(priceInput?.value) || 0;
+        const marketingBudget = parseFloat(marketingBudgetInput?.value) || 0;
+        const years = parseInt(yearInput?.value) || 1;
+        const months = parseInt(monthInput?.value) || 0;
+        const monthsTotal = years * 12 + months;
 
-        let monthsTotal = years * 12 + months;
+        const baseMonthlySales = productTypeSelect.value === "old" ? previousSales : projectedVolume * price;
 
-        // Base monthly sales
-        let baseMonthlySales = productTypeSelect.value === "old" ? previousSales : projectedVolume * price;
-
-        // Seasonal boost data
+        // Seasonal boosts
         let seasonalBoosts = {};
-        const selectedCategoryOption = productCategory.options[productCategory.selectedIndex];
-        if (selectedCategoryOption && selectedCategoryOption.dataset.boost) {
-            try {
-                seasonalBoosts = JSON.parse(selectedCategoryOption.dataset.boost);
-            } catch (e) {
-                seasonalBoosts = {};
-            }
+        const selectedCategoryOption = productCategory?.options[productCategory.selectedIndex];
+        if (selectedCategoryOption?.dataset.boost) {
+            try { seasonalBoosts = JSON.parse(selectedCategoryOption.dataset.boost); }
+            catch (e) { seasonalBoosts = {}; }
         }
 
-        // Calculate predicted sales per month
-        let predictedData = [];
-        let marketingData = [];
+        const predictedData = [];
+        const marketingData = [];
 
         for (let i = 0; i < monthsTotal; i++) {
-            let monthSeason = getSeasonForMonth(i);
+            const monthSeason = getSeasonForMonth(i);
+            const seasonMultiplier = seasonalBoosts[monthSeason] ? 1 + seasonalBoosts[monthSeason] / 100 : 1;
 
-            // Seasonal multiplier
-            let seasonMultiplier = seasonalBoosts[monthSeason] ? (1 + seasonalBoosts[monthSeason] / 100) : 1;
-
-            // Marketing multiplier (simple proportional)
             let marketingMultiplier = 1 + (marketingBudget * 0.05) / 100;
-            if (marketingTimeframe.value === "years") {
-                marketingMultiplier = 1 + (marketingBudget * 0.05 * 12) / 100;
-            }
+            if (marketingTimeframe?.value === "years") marketingMultiplier = 1 + (marketingBudget * 0.05 * 12) / 100;
 
-            let predictedMonthSales = baseMonthlySales * seasonMultiplier;
-            let marketingMonthSales = predictedMonthSales * marketingMultiplier;
+            const predictedMonthSales = baseMonthlySales * seasonMultiplier;
+            const marketingMonthSales = predictedMonthSales * marketingMultiplier;
 
             predictedData.push(predictedMonthSales);
             marketingData.push(marketingMonthSales);
         }
 
-        return {
-            months: monthsTotal,
-            predictedData: predictedData,
-            marketingData: marketingData
-        };
+        return { months: monthsTotal, predictedData, marketingData };
     }
 
     // ============================
-    // Chart.js Initialization
+    // Initialize empty Chart.js chart
     // ============================
-    let salesChart = new Chart(salesChartCtx, {
+    const salesChart = new Chart(salesChartCtx, {
         type: "line",
         data: {
             labels: [],
@@ -119,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     borderColor: "rgba(75, 192, 192, 1)",
                     backgroundColor: "rgba(75, 192, 192, 0.2)",
                     fill: true,
-                    hidden: !togglePredictedCheckbox.checked
+                    hidden: !(togglePredictedCheckbox?.checked ?? true)
                 },
                 {
                     label: "Sales with Marketing",
@@ -127,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     borderColor: "rgba(255, 99, 132, 1)",
                     backgroundColor: "rgba(255, 99, 132, 0.2)",
                     fill: true,
-                    hidden: !toggleMarketingCheckbox.checked
+                    hidden: !(toggleMarketingCheckbox?.checked ?? true)
                 }
             ]
         },
@@ -140,9 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 dragData: {
                     round: 2,
-                    onDragEnd: function () {
-                        console.log("Data changed");
-                    }
+                    onDragEnd: () => console.log("Data changed")
                 }
             },
             scales: {
@@ -153,33 +140,42 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ============================
-    // Update chart
+    // Update chart (after clicking Predict)
     // ============================
     function updateChart() {
         const salesData = calculateSales();
-        const labels = [];
-        for (let i = 1; i <= salesData.months; i++) labels.push("Month " + i);
+        const labels = Array.from({ length: salesData.months }, (_, i) => "Month " + (i + 1));
 
         salesChart.data.labels = labels;
         salesChart.data.datasets[0].data = salesData.predictedData;
-        salesChart.data.datasets[0].hidden = !togglePredictedCheckbox.checked;
+        salesChart.data.datasets[0].hidden = !(togglePredictedCheckbox?.checked ?? true);
         salesChart.data.datasets[1].data = salesData.marketingData;
-        salesChart.data.datasets[1].hidden = !toggleMarketingCheckbox.checked;
+        salesChart.data.datasets[1].hidden = !(toggleMarketingCheckbox?.checked ?? true);
         salesChart.update();
     }
 
     // ============================
     // Event listeners
     // ============================
-    togglePredictedCheckbox.addEventListener("change", updateChart);
-    toggleMarketingCheckbox.addEventListener("change", updateChart);
-    document.querySelector("form").addEventListener("input", updateChart);
-    updateChart();
+    // Only generate chart on form submission
+    const salesForm = document.querySelector("form");
+    salesForm?.addEventListener("submit", function (e) {
+        e.preventDefault(); // prevent actual form submission
+        updateChart();
+    });
+
+    togglePredictedCheckbox?.addEventListener("change", () => {
+        if (salesChart.data.labels.length > 0) salesChart.update();
+    });
+    toggleMarketingCheckbox?.addEventListener("change", () => {
+        if (salesChart.data.labels.length > 0) salesChart.update();
+    });
 
     // ============================
     // CSV Export
     // ============================
-    downloadCSVBtn.addEventListener("click", function () {
+    downloadCSVBtn?.addEventListener("click", () => {
+        if (!salesChart.data.labels.length) return; // no data yet
         const labels = salesChart.data.labels;
         const predicted = salesChart.data.datasets[0].data;
         const marketing = salesChart.data.datasets[1].data;
