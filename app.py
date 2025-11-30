@@ -4,22 +4,26 @@ import json, os, sys
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "business25")
 
+# ==========================
+# Home route
+# ==========================
 @app.route('/')
 def home():
     return render_template('index.html')
 
 
+# ==========================
+# Sales form route
+# ==========================
 @app.route('/sales', methods=['GET', 'POST'])
 def sales():
     if request.method == 'POST':
 
-        # ============================
-        # Validate and collect form data
-        # ============================
+        # ==========================
+        # Collect form data
+        # ==========================
         product_type = request.form.get('product_type')
-        investment_company = request.form.get('investment_company')
         product = request.form.get('product')
-        season = request.form.get('season')
         marketing_timeframe = request.form.get('marketing_timeframe')
 
         try:
@@ -31,33 +35,39 @@ def sales():
         if month not in [0, 3, 6, 9]:
             return "Invalid month selection. Only 0, 3, 6, or 9 allowed.", 400
 
-        # ============================
+        # ==========================
         # Build data dictionary
-        # ============================
+        # ==========================
         data = {
             "product_type": product_type,
             "product": product,
-            "price": request.form.get("price"),
-            "marketing_budget": request.form.get("marketing_budget"),
+            "price": float(request.form.get("price", 0)),
+            "marketing_budget": float(request.form.get("marketing_budget", 0)),
             "marketing_timeframe": marketing_timeframe,
-            "season": season,
             "year": year,
-            "month": month,
-            "investment_company": investment_company
+            "month": month
         }
 
         # Old product uses previous sales
         if product_type == "old":
-            data["previous_sales"] = request.form.get("previous_sales")
-            data["previous_sales_years"] = request.form.get("previous_sales_years")
+            previous_sales = float(request.form.get("previous_sales", 0))
+            previous_sales_years = int(request.form.get("previous_sales_years", 1))
+            previous_annual_sales = previous_sales / previous_sales_years if previous_sales_years > 0 else 0
+
+            data.update({
+                "previous_sales": previous_sales,
+                "previous_sales_years": previous_sales_years,
+                "previous_annual_sales": previous_annual_sales
+            })
 
         # New product uses volume estimate
         else:
-            data["volume"] = request.form.get("volume")
+            volume = int(request.form.get("volume", 0))
+            data["volume"] = volume
 
-        # ============================
+        # ==========================
         # Save to session + local JSON
-        # ============================
+        # ==========================
         session["sales_data"] = data
 
         file_path = os.path.join(os.path.dirname(__file__), "sales_data.json")
@@ -66,9 +76,13 @@ def sales():
 
         return render_template("improvement.html", data=data)
 
+    # GET request
     return render_template("sales.html")
 
 
+# ==========================
+# Download sales JSON
+# ==========================
 @app.route('/download-sales-data')
 def download_sales():
     file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
@@ -77,15 +91,18 @@ def download_sales():
     return "sales_data.json not found", 404
 
 
+# ==========================
+# Improvement guide route
+# ==========================
 @app.route('/improvement')
 def improvement():
     data = session.get("sales_data")
     return render_template("improvement.html", data=data)
 
 
-# ============================
+# ==========================
 # Static placeholder pages
-# ============================
+# ==========================
 @app.route('/finance')
 def finance():
     return "<h1>💰 Financial Planning</h1><p>Coming Soon...</p>"
@@ -103,9 +120,9 @@ def hr():
     return "<h1>🧑‍💼 HR & Team Management</h1><p>Coming Soon...</p>"
 
 
-# ============================
+# ==========================
 # Diagnostics
-# ============================
+# ==========================
 @app.route('/version')
 def version():
     return f"Python version: {sys.version}"
@@ -115,6 +132,9 @@ def health():
     return "OK", 200
 
 
+# ==========================
+# Run app
+# ==========================
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",

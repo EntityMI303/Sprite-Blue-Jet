@@ -39,9 +39,8 @@
                 <label for="product">Product Name:</label>
                 <input type="text" id="product" name="product" required>
 
-                <!-- NEW: Product Category -->
-                <label for="product_category">Product Category (for seasonal boosts):</label>
-                <select id="product_category" name="product_category" required>
+                <label for="product_category">Product Category (for seasonal boosts in chart):</label>
+                <select id="product_category" name="product_category">
                     <option value="">-- Select Category --</option>
                     <option value="cars" data-boost='{"summer":12,"winter":8}'>Cars</option>
                     <option value="toys" data-boost='{"summer":15,"winter":25,"fall":10}'>Toys</option>
@@ -63,31 +62,10 @@
                     <option value="years">Years</option>
                 </select>
 
-                <!-- NEW: Marketing Investment Company w/ custom deviations -->
-                <label for="investment_company">Marketing Investment Company:</label>
-                <select id="investment_company" name="investment_company" required>
-                    <option value="">-- Select Company --</option>
-                    <option value="amazon" data-boostmin="9" data-boostmax="15">Amazon (9–15% sales increase)</option>
-                    <option value="apple" data-boostmin="5" data-boostmax="7">Apple Inc. (5–7% sales increase)</option>
-                    <option value="google" data-boostmin="9" data-boostmax="10">Google (9–10% sales increase)</option>
-                    <option value="nvidia" data-boostmin="50" data-boostmax="60">NVIDIA (50–60% sales increase)</option>
-                    <option value="broadcom" data-boostmin="25" data-boostmax="30">Broadcom (25–30% sales increase)
-                    </option>
-                </select>
-
-                <label for="season">Season:</label>
-                <select id="season" name="season" required>
-                    <option value="spring">Spring</option>
-                    <option value="summer">Summer</option>
-                    <option value="fall">Fall</option>
-                    <option value="winter">Winter</option>
-                    <option value="all_seasons">All Seasons</option>
-                </select>
-
-                <label for="year">Years covered:</label>
+                <label for="year">Years to be predicted:</label>
                 <input type="number" id="year" name="year" min="1" max="30" required>
 
-                <label for="month">Months covered:</label>
+                <label for="month">Months to be predicted:</label>
                 <select id="month" name="month" required>
                     <option value="0">0 months</option>
                     <option value="3">3 months</option>
@@ -97,15 +75,6 @@
 
                 <input type="submit" value="Predict Sales">
             </form>
-
-            <h3>📈 Market Investment Deviations</h3>
-            <ul>
-                <li>Amazon: <b>9–15%</b> potential sales increase</li>
-                <li>Apple Inc.: <b>5–7%</b> potential sales increase</li>
-                <li>Google: <b>9–10%</b> potential sales increase</li>
-                <li>NVIDIA: <b>50–60%</b> potential sales increase</li>
-                <li>Broadcom: <b>25–30%</b> potential sales increase</li>
-            </ul>
 
             <h2 id="salesCalendar"></h2>
 
@@ -117,7 +86,7 @@
         <div class="chart">
             <div class="chart-controls">
                 <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
-                <label><input type="checkbox" id="toggleMarketing" checked> Sales Calculated Based On Market
+                <label><input type="checkbox" id="toggleMarketing" checked> Sales Based On Market
                     Investments</label>
                 <button id="downloadCSV">Download CSV</button>
             </div>
