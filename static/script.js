@@ -80,15 +80,39 @@ document.addEventListener("DOMContentLoaded", function () {
         data: {
             labels: labels,
             datasets: [
-                { label: "Previous Sales", data: previousData, backgroundColor: "rgba(100,149,237,0.6)" },
-                { label: "Predicted Sales", data: predictedData, backgroundColor: "rgba(60,179,113,0.6)" },
-                { label: "Sales with Marketing", data: marketingData, backgroundColor: "rgba(255,99,132,0.6)" }
+                {
+                    label: "Previous Sales",
+                    data: previousData,
+                    backgroundColor: "rgba(100,149,237,0.6)",
+                    hoverBackgroundColor: "rgba(100,149,237,1)",   // highlight on hover
+                    borderRadius: 4
+                },
+                {
+                    label: "Predicted Sales",
+                    data: predictedData,
+                    backgroundColor: "rgba(60,179,113,0.6)",
+                    hoverBackgroundColor: "rgba(60,179,113,1)",
+                    borderRadius: 4
+                },
+                {
+                    label: "Sales with Marketing",
+                    data: marketingData,
+                    backgroundColor: "rgba(255,99,132,0.6)",
+                    hoverBackgroundColor: "rgba(255,99,132,1)",
+                    borderRadius: 4
+                }
             ]
         },
         options: {
             responsive: true,
+            interaction: {
+                mode: "nearest",   // find nearest point/bar
+                axis: "x",         // hover along x-axis
+                intersect: true    // highlight only when directly over a bar
+            },
             plugins: {
                 tooltip: {
+                    enabled: true,
                     callbacks: {
                         label: function (context) {
                             return `${context.dataset.label}: $${context.raw.toLocaleString()}`;
@@ -99,9 +123,14 @@ document.addEventListener("DOMContentLoaded", function () {
             scales: {
                 x: { title: { display: true, text: "Date" } },
                 y: { title: { display: true, text: "Sales ($)" }, beginAtZero: true }
+            },
+            hover: {
+                mode: "dataset",   // highlight dataset on hover
+                animationDuration: 400 // smooth transition
             }
         }
     });
+
 
     // ============================
     // CSV Export
