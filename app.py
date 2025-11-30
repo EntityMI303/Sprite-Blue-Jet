@@ -9,8 +9,8 @@ def home():
     return render_template('index.html')
 
 # --- Sales Prediction Feature ---
-@app.route('/predict-future-sales', methods=['GET', 'POST'])
-def predict_future_sales():
+@app.route('/sales', methods=['GET', 'POST'])
+def sales():
     if request.method == 'POST':
         try:
             month = int(request.form.get('month', 0))
