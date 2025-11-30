@@ -25,6 +25,8 @@ def sales():
         product_type = request.form.get('product_type')
         product = request.form.get('product')
         marketing_timeframe = request.form.get('marketing_timeframe')
+        product_category = request.form.get('product_category')
+        season = request.form.get('season')
 
         try:
             month = int(request.form.get('month', 0))
@@ -45,7 +47,9 @@ def sales():
             "marketing_budget": float(request.form.get("marketing_budget", 0)),
             "marketing_timeframe": marketing_timeframe,
             "year": year,
-            "month": month
+            "month": month,
+            "product_category": product_category,
+            "season": season
         }
 
         # Old product uses previous sales

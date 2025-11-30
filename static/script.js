@@ -1,63 +1,30 @@
-// ============================
-// Seasonal/Product Category Boosts
-// ============================
-var productCategoryBoosts = {
-    cars: 0.10,        // 10% boost
-    toys: 0.20,
-    clothing: 0.15,
-    electronics: 0.10,
-    food: 0.05,
-    retail: 0.08
-};
-
-// ============================
-// CSV export util
-// ============================
-function exportToCSV(labels, predictedData, cumulativeData) {
-    var csvContent = "Month,Predicted Sales,Cumulative Sales\n";
-    for (var i = 0; i < labels.length; i++) {
-        var row = [
-            labels[i],
-            predictedData[i] !== undefined ? predictedData[i] : "",
-            cumulativeData[i] !== undefined ? cumulativeData[i] : ""
-        ].join(",");
-        csvContent += row + "\n";
-    }
-    var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    var url = URL.createObjectURL(blob);
-    var link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "sales_data.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// ============================
-// Helper - random between
-// ============================
-function randomBetween(min, max) {
-    return Math.random() * (max - min) + min;
-}
-
-// ============================
-// DOM Ready
-// ============================
 document.addEventListener("DOMContentLoaded", function () {
+    // ============================
+    // Elements
+    // ============================
+    const productTypeSelect = document.getElementById("product_type");
+    const previousSalesBlock = document.getElementById("previousSalesBlock");
+    const volumeBlock = document.getElementById("volumeBlock");
 
-    var form = document.querySelector("form");
-    var chartCanvas = document.getElementById("salesChart");
-    var calendarOutput = document.getElementById("salesCalendar");
-    var downloadBtn = document.getElementById("downloadCSV");
-    var toggleCumulative = document.getElementById("toggleCumulative");
-    var productType = document.getElementById("product_type");
-    var previousSalesBlock = document.getElementById("previousSalesBlock");
-    var volumeBlock = document.getElementById("volumeBlock");
-    var productCategorySelect = document.getElementById("product_category");
+    const productCategory = document.getElementById("product_category");
+    const marketingBudgetInput = document.getElementById("marketing_budget");
+    const marketingTimeframe = document.getElementById("marketing_timeframe");
+    const priceInput = document.getElementById("price");
+    const yearInput = document.getElementById("year");
+    const monthInput = document.getElementById("month");
+    const seasonSelect = document.getElementById("season");
 
-    // Toggle fields based on product type
-    function toggleProductFields() {
-        if (productType && productType.value === "old") {
+    const togglePredictedCheckbox = document.getElementById("togglePredicted");
+    const toggleMarketingCheckbox = document.getElementById("toggleMarketing");
+    const downloadCSVBtn = document.getElementById("downloadCSV");
+
+    const salesChartCtx = document.getElementById("salesChart").getContext("2d");
+
+    // ============================
+    // Toggle input fields
+    // ============================
+    function toggleFields() {
+        if (productTypeSelect.value === "old") {
             previousSalesBlock.style.display = "block";
             volumeBlock.style.display = "none";
         } else {
@@ -65,134 +32,167 @@ document.addEventListener("DOMContentLoaded", function () {
             volumeBlock.style.display = "block";
         }
     }
-    if (productType) {
-        productType.addEventListener("change", toggleProductFields);
-        toggleProductFields();
+
+    productTypeSelect.addEventListener("change", toggleFields);
+    toggleFields(); // initialize
+
+    // ============================
+    // Helper: Get seasonal boost for a month
+    // ============================
+    function getSeasonForMonth(monthIndex) {
+        const month = (monthIndex % 12) + 1; // 1–12
+        if ([12, 1, 2].includes(month)) return "winter";
+        if ([3, 4, 5].includes(month)) return "spring";
+        if ([6, 7, 8].includes(month)) return "summer";
+        if ([9, 10, 11].includes(month)) return "fall";
+        return "all_seasons";
     }
 
-    var labels = [];
-    var predictedData = [];
-    var cumulativeData = [];
+    // ============================
+    // Calculate sales
+    // ============================
+    function calculateSales() {
+        let previousSales = parseFloat(document.getElementById("previous_sales").value) || 0;
+        let projectedVolume = parseFloat(document.getElementById("volume").value) || 0;
+        let price = parseFloat(priceInput.value) || 0;
+        let marketingBudget = parseFloat(marketingBudgetInput.value) || 0;
+        let years = parseInt(yearInput.value) || 1;
+        let months = parseInt(monthInput.value) || 0;
 
-    if (form && chartCanvas) {
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
+        let monthsTotal = years * 12 + months;
 
-            var formData = new FormData(form);
-            var data = {};
-            formData.forEach(function (v, k) { data[k] = v; });
+        // Base monthly sales
+        let baseMonthlySales = productTypeSelect.value === "old" ? previousSales : projectedVolume * price;
 
-            // Base sales
-            var currentSales = 0;
-            if (data.product_type === "old") {
-                currentSales = parseFloat(data.previous_annual_sales || "0") || 0;
-            } else {
-                var volume = parseInt(data.volume || "0", 10) || 0;
-                var price = parseFloat(data.price || "0") || 0;
-                currentSales = volume * price;
+        // Seasonal boost data
+        let seasonalBoosts = {};
+        const selectedCategoryOption = productCategory.options[productCategory.selectedIndex];
+        if (selectedCategoryOption && selectedCategoryOption.dataset.boost) {
+            try {
+                seasonalBoosts = JSON.parse(selectedCategoryOption.dataset.boost);
+            } catch (e) {
+                seasonalBoosts = {};
+            }
+        }
+
+        // Calculate predicted sales per month
+        let predictedData = [];
+        let marketingData = [];
+
+        for (let i = 0; i < monthsTotal; i++) {
+            let monthSeason = getSeasonForMonth(i);
+
+            // Seasonal multiplier
+            let seasonMultiplier = seasonalBoosts[monthSeason] ? (1 + seasonalBoosts[monthSeason] / 100) : 1;
+
+            // Marketing multiplier (simple proportional)
+            let marketingMultiplier = 1 + (marketingBudget * 0.05) / 100;
+            if (marketingTimeframe.value === "years") {
+                marketingMultiplier = 1 + (marketingBudget * 0.05 * 12) / 100;
             }
 
-            var years = parseInt(data.year || "0", 10) || 0;
-            var months = parseInt(data.month || "0", 10) || 0;
-            var monthsAhead = months === 0 ? (years * 12) : (years * 12 + months);
-            if (monthsAhead <= 0) monthsAhead = 6; // fallback
+            let predictedMonthSales = baseMonthlySales * seasonMultiplier;
+            let marketingMonthSales = predictedMonthSales * marketingMultiplier;
 
-            labels = [];
-            predictedData = [];
-            cumulativeData = [];
+            predictedData.push(predictedMonthSales);
+            marketingData.push(marketingMonthSales);
+        }
 
-            // Seasonal boost based on category
-            var productCategory = (data.product_category || "").toLowerCase();
-            var seasonalBoost = productCategoryBoosts[productCategory] || 0;
+        return {
+            months: monthsTotal,
+            predictedData: predictedData,
+            marketingData: marketingData
+        };
+    }
 
-            var today = new Date();
-            var runningSales = currentSales;
-            var cumulative = 0;
-
-            for (var i = 0; i < monthsAhead; i++) {
-                var label = new Date(today.getFullYear(), today.getMonth() + i, 1)
-                    .toLocaleString('default', { month: 'short', year: 'numeric' });
-                labels.push(label);
-
-                // Monthly fluctuation with small randomness
-                runningSales = runningSales * (0.95 + Math.random() * 0.15);
-
-                // Apply seasonal/product category boost
-                var predictedValue = runningSales * (1 + seasonalBoost);
-                predictedData.push(parseFloat(predictedValue.toFixed(2)));
-
-                cumulative += predictedValue;
-                cumulativeData.push(parseFloat(cumulative.toFixed(2)));
-            }
-
-            if (window.salesChartInstance) window.salesChartInstance.destroy();
-
-            window.salesChartInstance = new Chart(chartCanvas, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Predicted Sales',
-                            data: predictedData,
-                            borderColor: 'blue',
-                            backgroundColor: 'rgba(54,162,235,0.2)',
-                            tension: 0.3,
-                            pointRadius: 3
-                        },
-                        {
-                            label: 'Cumulative Sales',
-                            data: cumulativeData,
-                            borderColor: 'green',
-                            backgroundColor: 'rgba(75,192,192,0.2)',
-                            tension: 0.3,
-                            pointRadius: 3,
-                            hidden: true
-                        }
-                    ]
+    // ============================
+    // Chart.js Initialization
+    // ============================
+    let salesChart = new Chart(salesChartCtx, {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: "Predicted Sales",
+                    data: [],
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    fill: true,
+                    hidden: !togglePredictedCheckbox.checked
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    return `$${context.parsed.y}`;
-                                }
-                            }
-                        },
-                        legend: { display: true }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Sales ($)' } },
-                        x: { title: { display: true, text: 'Month' } }
+                {
+                    label: "Sales with Marketing",
+                    data: [],
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    fill: true,
+                    hidden: !toggleMarketingCheckbox.checked
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                zoom: {
+                    pan: { enabled: true, mode: "x" },
+                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" }
+                },
+                dragData: {
+                    round: 2,
+                    onDragEnd: function () {
+                        console.log("Data changed");
                     }
                 }
-            });
-
-            if (calendarOutput) {
-                calendarOutput.innerText =
-                    "Sales prediction for " + (data.product || "your product") +
-                    " over the next " + years + " years and " + months + " months.";
+            },
+            scales: {
+                x: { title: { display: true, text: "Months" } },
+                y: { title: { display: true, text: "Sales ($)" }, beginAtZero: true }
             }
+        }
+    });
 
-            // Toggle cumulative dataset visibility
-            if (toggleCumulative) {
-                toggleCumulative.addEventListener("change", function () {
-                    if (window.salesChartInstance) {
-                        window.salesChartInstance.setDatasetVisibility(1, toggleCumulative.checked);
-                        window.salesChartInstance.update();
-                    }
-                });
-            }
+    // ============================
+    // Update chart
+    // ============================
+    function updateChart() {
+        const salesData = calculateSales();
+        const labels = [];
+        for (let i = 1; i <= salesData.months; i++) labels.push("Month " + i);
 
-            if (downloadBtn) {
-                downloadBtn.addEventListener("click", function () {
-                    if (labels.length > 0) exportToCSV(labels, predictedData, cumulativeData);
-                    else alert("No data available to export. Run prediction first.");
-                }, { once: true });
-            }
-        });
+        salesChart.data.labels = labels;
+        salesChart.data.datasets[0].data = salesData.predictedData;
+        salesChart.data.datasets[0].hidden = !togglePredictedCheckbox.checked;
+        salesChart.data.datasets[1].data = salesData.marketingData;
+        salesChart.data.datasets[1].hidden = !toggleMarketingCheckbox.checked;
+        salesChart.update();
     }
+
+    // ============================
+    // Event listeners
+    // ============================
+    togglePredictedCheckbox.addEventListener("change", updateChart);
+    toggleMarketingCheckbox.addEventListener("change", updateChart);
+    document.querySelector("form").addEventListener("input", updateChart);
+    updateChart();
+
+    // ============================
+    // CSV Export
+    // ============================
+    downloadCSVBtn.addEventListener("click", function () {
+        const labels = salesChart.data.labels;
+        const predicted = salesChart.data.datasets[0].data;
+        const marketing = salesChart.data.datasets[1].data;
+
+        let csvContent = "Month,Predicted Sales,Sales with Marketing\n";
+        labels.forEach((label, i) => {
+            csvContent += `${label},${predicted[i]},${marketing[i]}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "sales_prediction.csv";
+        link.click();
+    });
 });
