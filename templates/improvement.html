@@ -17,7 +17,9 @@
     </header>
 
     {% if data %}
-    <div class="improvement-wrapper">
+    <!-- Full page wrapper: Summary on left, Chart on right -->
+    <div class="full-page-wrapper improvement-wrapper">
+
         <!-- Left: Summary -->
         <div class="sales-container">
             <h2>Submitted Sales Data</h2>
@@ -51,14 +53,17 @@
         </div>
 
         <!-- Right: Chart -->
-        <div class="chart">
-            <canvas id="improvementChart"
-                data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
-                data-predicted="{{ data.volume if data.product_type == 'new' else data.previous_sales }}"
-                data-marketing="{{ data.marketing_budget }}"
-                data-timeframe="{{ data.marketing_timeframe }}">
-            </canvas>
+        <div class="chart-container">
+            <div class="chart" style="height: 100%;">
+                <canvas id="improvementChart"
+                    data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
+                    data-predicted="{{ data.volume if data.product_type == 'new' else data.previous_sales }}"
+                    data-marketing="{{ data.marketing_budget }}"
+                    data-timeframe="{{ data.marketing_timeframe }}">
+                </canvas>
+            </div>
         </div>
+
     </div>
     {% else %}
     <p>No sales data submitted yet.</p>

@@ -11,7 +11,9 @@
 </head>
 
 <body>
-    <div class="sales-wrapper">
+    <!-- Full page wrapper: Form on left, Chart on right -->
+    <div class="full-page-wrapper">
+
         <!-- Left: Sales Form -->
         <div class="sales-container">
             <h1>Sales Prediction</h1>
@@ -68,17 +70,18 @@
         </div>
 
         <!-- Right: Sales Chart -->
-        <div class="chart">
+        <div class="chart-container">
             <div class="chart-controls">
                 <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
                 <label><input type="checkbox" id="toggleMarketing" checked> Sales Calculated Based On Market Investments</label>
                 <button id="downloadCSV">Download CSV</button>
             </div>
 
-            <div class="chart-container" style="height: 500px;">
+            <div class="chart" style="height: 100%;">
                 <canvas id="salesChart"></canvas>
             </div>
         </div>
+
     </div>
 </body>
 
