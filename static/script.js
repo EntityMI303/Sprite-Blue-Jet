@@ -36,9 +36,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const previousSalesBlock = document.getElementById("previousSalesBlock");
     const volumeBlock = document.getElementById("volumeBlock");
 
-    // Toggle fields based on product type
     function toggleProductFields() {
-        if (productType && productType.value === "old") {
+        if (productType.value === "old") {
             previousSalesBlock.style.display = "block";
             volumeBlock.style.display = "none";
         } else {
@@ -46,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             volumeBlock.style.display = "block";
         }
     }
+
     if (productType) {
         productType.addEventListener("change", toggleProductFields);
         toggleProductFields();
@@ -74,24 +74,16 @@ document.addEventListener("DOMContentLoaded", function () {
             const marketingBudget = parseFloat(data.marketing_budget);
             const timeframe = data.marketing_timeframe;
 
-            // Handle old vs new product
             let currentSales = 0;
             if (data.product_type === "old") {
                 currentSales = parseFloat(data.previous_sales);
             } else {
                 const volume = parseInt(data.volume);
                 const price = parseFloat(data.price);
-                currentSales = volume * price; // base sales for new product
+                currentSales = volume * price;
             }
 
-            const seasonAdjustments = {
-                spring: 15,
-                summer: 10,
-                fall: 20,
-                winter: 25,
-                all_seasons: 0
-            };
-
+            const seasonAdjustments = { spring: 15, summer: 10, fall: 20, winter: 25, all_seasons: 0 };
             let totalDays = (month * 30) + (year * 365) + seasonAdjustments[season];
             const today = new Date();
             const futureDate = new Date();
@@ -101,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 `Sales prediction for ${product} launches on ${futureDate.toDateString()} (adjusted for ${season}).`;
 
             const monthsAhead = month === 0 ? (year * 12) : Math.ceil(totalDays / 30);
-
             labels = [];
             predictedData = [];
             marketingData = [];
@@ -111,11 +102,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     .toLocaleString('default', { month: 'short', year: 'numeric' });
                 labels.push(monthLabel);
 
-                // Sales growth/decay simulation
                 currentSales *= (0.95 + Math.random() * 0.2);
                 predictedData.push(parseFloat(currentSales.toFixed(2)));
 
-                // Marketing impact adjusted by timeframe
                 let marketingBoost = 0;
                 if (timeframe === "months") {
                     marketingBoost = marketingBudget * (0.01 + Math.random() * 0.05);
@@ -125,9 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 marketingData.push(parseFloat((currentSales + marketingBoost).toFixed(2)));
             }
 
-            if (window.salesChartInstance) {
-                window.salesChartInstance.destroy();
-            }
+            if (window.salesChartInstance) window.salesChartInstance.destroy();
 
             window.salesChartInstance = new Chart(chartCanvas, {
                 type: 'line',
@@ -138,14 +125,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             label: 'Predicted Sales',
                             data: predictedData,
                             borderColor: 'blue',
-                            backgroundColor: 'blue',
+                            backgroundColor: 'rgba(0,0,255,0.1)',
                             tension: 0.3
                         },
                         {
                             label: 'Sales Based On Market Investments',
                             data: marketingData,
                             borderColor: 'orange',
-                            backgroundColor: 'orange',
+                            backgroundColor: 'rgba(255,165,0,0.1)',
                             tension: 0.3
                         }
                     ]
@@ -155,24 +142,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     maintainAspectRatio: false,
                     plugins: {
                         tooltip: {
-                            enabled: true,
                             callbacks: {
                                 label: function (context) {
                                     return `${context.dataset.label}: $${context.parsed.y}`;
                                 }
                             }
                         },
-                        zoom: {
-                            zoom: {
-                                wheel: { enabled: true },
-                                pinch: { enabled: true },
-                                mode: 'xy'
-                            },
-                            pan: {
-                                enabled: true,
-                                mode: 'xy'
-                            }
-                        },
+                        zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }, pan: { enabled: true, mode: 'xy' } },
                         dragData: {
                             round: 2,
                             showTooltip: true,
