@@ -107,9 +107,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 let marketingBoost = 0;
                 if (timeframe === "months") {
-                    marketingBoost = marketingBudget * (0.01 + Math.random() * 0.10);
+                    marketingBoost = marketingBudget * (0.30 + Math.random() * 0.10);
                 } else if (timeframe === "years") {
-                    marketingBoost = (marketingBudget / 12) * (0.01 + Math.random() * 0.10);
+                    marketingBoost = (marketingBudget / 12) * (0.30 + Math.random() * 0.10);
                 }
                 marketingData.push(parseFloat((currentSales + marketingBoost).toFixed(2)));
             }
