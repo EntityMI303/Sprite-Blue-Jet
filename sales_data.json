@@ -1,12 +1,12 @@
 {
   "product_type": "old",
   "product": "Toys",
-  "price": 1.99,
-  "marketing_budget": 1000.0,
-  "marketing_timeframe": "years",
+  "price": 3.0,
+  "marketing_budget": 300.0,
+  "marketing_timeframe": "months",
   "season": null,
   "year": 1,
   "month": 0,
-  "previous_sales": 3000.0,
+  "previous_sales": 5000.0,
   "previous_sales_years": 0
 }

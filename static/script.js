@@ -61,88 +61,51 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-            await fetch("/sales", {
-                method: "POST",
-                body: formData
-            });
+            await fetch("/sales", { method: "POST", body: formData });
 
-            const product = data.product;
-            const season = data.season;
             const year = parseInt(data.year);
             const month = parseInt(data.month);
             const marketingBudget = parseFloat(data.marketing_budget);
             const timeframe = data.marketing_timeframe;
 
-            let currentSales = 0;
+            let baseSales = 0;
             if (data.product_type === "old") {
-                currentSales = parseFloat(data.previous_sales);
+                baseSales = parseFloat(data.previous_sales);
             } else {
                 const volume = parseInt(data.volume);
                 const price = parseFloat(data.price);
-                currentSales = volume * price;
+                baseSales = volume * price;
             }
 
-            const seasonAdjustments = { spring: 15, summer: 10, fall: 20, winter: 25, all_seasons: 0 };
-            let totalDays = (month * 30) + (year * 365) + seasonAdjustments[season];
-            const today = new Date();
-            const futureDate = new Date();
-            futureDate.setDate(today.getDate() + totalDays);
-
-            const monthsAhead = month === 0 ? (year * 12) : Math.ceil(totalDays / 30);
+            // Total months to predict
+            const monthsAhead = month === 0 ? (year * 12) : Math.ceil(year * 12 + month);
             labels = [];
             predictedData = [];
             marketingData = [];
 
+            // Linear growth rate per month
+            let growthRate = 0.02; // 2% per month linear growth
             for (let i = 0; i < monthsAhead; i++) {
+                const monthLabel = new Date().setMonth(new Date().getMonth() + i);
+                labels.push(new Date(monthLabel).toLocaleString('default', { month: 'short', year: 'numeric' }));
 
-                // Month label
-                const monthLabel = new Date(today.getFullYear(), today.getMonth() + i, 1)
-                    .toLocaleString('default', { month: 'short', year: 'numeric' });
-                labels.push(monthLabel);
+                // Linear growth
+                let predictedSales = baseSales * (1 + growthRate * (i + 1));
 
-                // =========================================================
-                // 1. NATURAL MARKET MOVEMENT
-                // =========================================================
+                // Slight random fluctuation ±2%
+                predictedSales *= 1 + (Math.random() * 0.04 - 0.02);
+                predictedData.push(parseFloat(predictedSales.toFixed(2)));
 
-                // Random fluctuation: between –5% and +15%
-                currentSales *= (0.95 + Math.random() * 0.20);
-
-                // Prevent negative or invalid sales
-                currentSales = Math.max(0, currentSales);
-
-                // Save baseline prediction
-                predictedData.push(parseFloat(currentSales.toFixed(2)));
-
-                // =========================================================
-                // 2. REALISTIC MARKETING BOOST FORMULA
-                // =========================================================
-
-                let budget = isNaN(marketingBudget) ? 0 : marketingBudget;
-
-                // Diminishing returns with sensitivity curve
-                let effectiveness = 0.12 + Math.log10(budget + 10) / 15;
-
-                // Months = full strength, years = weaker because spread out
-                let timeframeMultiplier = timeframe === "months" ? 1 : 0.6;
-
-                // Realistic market randomness
-                let randomness = 0.9 + Math.random() * 0.4;
-
-                // Final boost amount
-                let marketingBoost = currentSales * effectiveness * timeframeMultiplier * randomness;
-
-                let boostedSales = currentSales + marketingBoost;
-
-                // Ensure sales never go below 0
-                boostedSales = Math.max(0, boostedSales);
-
-                // Save boosted value
-                marketingData.push(parseFloat(boostedSales.toFixed(2)));
-
-                // Update for next loop
-                currentSales = boostedSales;
+                // Marketing boost (linear effect)
+                let marketingBoost = predictedSales;
+                if (!isNaN(marketingBudget) && marketingBudget > 0) {
+                    let marketingFactor = 0.1; // 10% max effect
+                    marketingFactor *= timeframe === "months" ? 1 : 0.6; // adjust for timeframe
+                    marketingBoost = predictedSales * (1 + marketingFactor * (marketingBudget / 10000));
+                }
+                marketingBoost *= 1 + (Math.random() * 0.02 - 0.01); // ±1% random
+                marketingData.push(parseFloat(marketingBoost.toFixed(2)));
             }
-
 
             if (window.salesChartInstance) window.salesChartInstance.destroy();
 
@@ -185,7 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             onDragEnd: function (e, datasetIndex, index, value) {
                                 window.salesChartInstance.data.datasets[datasetIndex].data[index] = value;
                                 window.salesChartInstance.update();
-
                                 fetch("/update-sales-data", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
@@ -237,14 +199,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const improvementCanvas = document.getElementById("improvementChart");
     if (improvementCanvas) {
         const ctx = improvementCanvas.getContext('2d');
-
         const previousSales = parseFloat(improvementCanvas.dataset.previous || 0);
         let predictedSales = parseFloat(improvementCanvas.dataset.predicted || 0);
         const marketingImpact = parseFloat(improvementCanvas.dataset.marketing || 0);
         const timeframe = improvementCanvas.dataset.timeframe || "";
 
         let chartData = [];
-
         if (previousSales === 0) { // New product
             chartData = [0, predictedSales, marketingImpact];
         } else { // Old product
@@ -255,11 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
             type: 'bar',
             data: {
                 labels: ['Previous Sales', `Predicted Sales (${timeframe})`, 'Marketing Budget'],
-                datasets: [{
-                    label: 'Comparison ($)',
-                    data: chartData,
-                    backgroundColor: ['blue', 'purple', 'orange']
-                }]
+                datasets: [{ label: 'Comparison ($)', data: chartData, backgroundColor: ['blue', 'purple', 'orange'] }]
             },
             options: {
                 responsive: true,
@@ -267,19 +223,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: function (context) {
-                                return `$${context.parsed.y}`;
-                            }
+                            label: function (context) { return `$${context.parsed.y}`; }
                         }
                     },
                     legend: { display: false }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Amount ($)' }
-                    }
-                }
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'Amount ($)' } } }
             }
         });
     }
