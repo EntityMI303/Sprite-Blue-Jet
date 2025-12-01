@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // ============================
     const form = document.querySelector("form");
     const chartCanvas = document.getElementById("salesChart");
-    const calendarOutput = document.getElementById("salesCalendar");
 
     const togglePredicted = document.getElementById("togglePredicted");
     const toggleMarketing = document.getElementById("toggleMarketing");
@@ -89,32 +88,61 @@ document.addEventListener("DOMContentLoaded", function () {
             const futureDate = new Date();
             futureDate.setDate(today.getDate() + totalDays);
 
-            /*calendarOutput.innerText =
-                `Sales prediction for ${product} launches on ${futureDate.toDateString()} (adjusted for ${season}).`;*/
-
             const monthsAhead = month === 0 ? (year * 12) : Math.ceil(totalDays / 30);
             labels = [];
             predictedData = [];
             marketingData = [];
 
             for (let i = 0; i < monthsAhead; i++) {
+
+                // Month label
                 const monthLabel = new Date(today.getFullYear(), today.getMonth() + i, 1)
                     .toLocaleString('default', { month: 'short', year: 'numeric' });
                 labels.push(monthLabel);
 
-                currentSales *= (0.95 + Math.random() * 0.2);
+                // =========================================================
+                // 1. NATURAL MARKET MOVEMENT
+                // =========================================================
+
+                // Random fluctuation: between –5% and +15%
+                currentSales *= (0.95 + Math.random() * 0.20);
+
+                // Prevent negative or invalid sales
+                currentSales = Math.max(0, currentSales);
+
+                // Save baseline prediction
                 predictedData.push(parseFloat(currentSales.toFixed(2)));
 
-                let marketingBoost = 0;
-                if (timeframe === "months") {
-                  //  marketingBoost = marketingBudget * (0.50 + Math.random() * 0.30);
-                  marketingBoost = (currentSales / 12) / (marketingBudget);
-                } else if (timeframe === "years") {
-                   // marketingBoost = (marketingBudget / 12) * (0.50 + Math.random() * 0.30);
-                    marketingBoost = (currentSales / 12) / (marketingBudget /12);
-                }
-                marketingData.push(parseFloat((currentSales + (currentSales * (marketingBoost / 100))).toFixed(2)));
+                // =========================================================
+                // 2. REALISTIC MARKETING BOOST FORMULA
+                // =========================================================
+
+                let budget = isNaN(marketingBudget) ? 0 : marketingBudget;
+
+                // Diminishing returns with sensitivity curve
+                let effectiveness = 0.12 + Math.log10(budget + 10) / 15;
+
+                // Months = full strength, years = weaker because spread out
+                let timeframeMultiplier = timeframe === "months" ? 1 : 0.6;
+
+                // Realistic market randomness
+                let randomness = 0.9 + Math.random() * 0.4;
+
+                // Final boost amount
+                let marketingBoost = currentSales * effectiveness * timeframeMultiplier * randomness;
+
+                let boostedSales = currentSales + marketingBoost;
+
+                // Ensure sales never go below 0
+                boostedSales = Math.max(0, boostedSales);
+
+                // Save boosted value
+                marketingData.push(parseFloat(boostedSales.toFixed(2)));
+
+                // Update for next loop
+                currentSales = boostedSales;
             }
+
 
             if (window.salesChartInstance) window.salesChartInstance.destroy();
 
@@ -221,7 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: [
                     'Previous Sales',
                     `Predicted Sales (${timeframe})`,
-                    'Sales Calculated with Marketing Investments'
+                    'Marketing Budget'
                 ],
                 datasets: [{
                     label: 'Comparison ($)',

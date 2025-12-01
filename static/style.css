@@ -1,5 +1,6 @@
-
-/* General page styling */
+/* ============================
+   GENERAL PAGE STYLING
+============================ */
 body {
     background-color: #f0f8ff;
     font-family: Arial, sans-serif;
@@ -9,7 +10,9 @@ body {
     line-height: 1.6;
 }
 
-/* Navigation Bar */
+/* ============================
+   NAVIGATION BAR
+============================ */
 nav {
     position: fixed;
     top: 0;
@@ -37,7 +40,9 @@ nav {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Hero Section */
+/* ============================
+   HERO SECTION
+============================ */
 .hero {
     margin-top: 60px;
     background: linear-gradient(to right, #0077b6, #00b4d8);
@@ -56,7 +61,9 @@ nav {
     margin-bottom: 20px;
 }
 
-/* Features Section - Horizontal Scroll */
+/* ============================
+   FEATURES HORIZONTAL SCROLL
+============================ */
 .features-scroll {
     display: flex;
     overflow-x: auto;
@@ -79,7 +86,6 @@ nav {
     width: 300px;
     background-color: slategray;
     color: white;
-    margin: 10px;
     padding: 30px;
     border-radius: 12px;
     text-align: center;
@@ -103,13 +109,14 @@ nav {
     margin-bottom: 20px;
 }
 
-/* Button styling */
+/* ============================
+   BUTTONS
+============================ */
 button {
     background-color: #4CAF50;
     border: none;
     color: white;
     padding: 12px 28px;
-    text-align: center;
     font-size: 16px;
     margin: 8px 4px;
     cursor: pointer;
@@ -121,7 +128,9 @@ button:hover {
     background-color: #45a049;
 }
 
-/* Footer */
+/* ============================
+   FOOTER
+============================ */
 footer {
     background-color: #e0e0e0;
     text-align: center;
@@ -130,7 +139,9 @@ footer {
     color: #555;
 }
 
-/* Responsive layout for small screens */
+/* ============================
+   RESPONSIVE DESIGN
+============================ */
 @media (max-width: 768px) {
     .features-scroll {
         flex-direction: row;
@@ -151,7 +162,9 @@ footer {
     }
 }
 
-/* Layout container for form + chart */
+/* ============================
+   LAYOUT WRAPPER
+============================ */
 .layout-container {
     display: flex;
     flex-wrap: wrap;
@@ -159,7 +172,9 @@ footer {
     padding: 20px;
 }
 
-/* Form container */
+/* ============================
+   SALES FORM CONTAINER
+============================ */
 .sales-container {
     flex: 1 1 300px;
     max-width: 600px;
@@ -209,7 +224,6 @@ footer {
 .sales-container input[type="submit"] {
     margin-top: 10px;
     padding: 12px;
-    font-size: 16px;
     background-color: #0078d4;
     color: white;
     border: none;
@@ -222,13 +236,13 @@ footer {
     background-color: #005fa3;
 }
 
-/* Chart container */
+/* ============================
+   CHART SECTION
+============================ */
 .chart-container {
     flex: 1 1 600px;
     max-width: 100%;
-    max-height: 100%;
     padding: 20px;
-    box-sizing: border-box;
 }
 
 .chart-controls {
@@ -246,12 +260,14 @@ footer {
     width: 100% !important;
     height: 100% !important;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     background-color: #fafafa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
 }
 
-/* Improvement Guide styling */
+/* ============================
+   IMPROVEMENT PAGE STYLING
+============================ */
 .sales-container ul {
     list-style: none;
     padding: 0;
@@ -268,7 +284,9 @@ footer {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Chart wrapper */
+/* ============================
+   CHART BOX (IMPROVEMENT PAGE)
+============================ */
 .chart {
     background-color: #ffffff;
     padding: 20px;
@@ -279,7 +297,9 @@ footer {
     margin: auto;
 }
 
-/* CSV Download Button */
+/* ============================
+   CSV DOWNLOAD BUTTON
+============================ */
 #downloadCSV {
     background-color: #0078d4;
     color: white;

@@ -23,37 +23,40 @@
             <li><strong>Product Type:</strong> {{ data.product_type }}</li>
             <li><strong>Product:</strong> {{ data.product }}</li>
             <li><strong>Price:</strong> {{ data.price }}</li>
+
             {% if data.product_type == "old" %}
             <li><strong>Previous Sales:</strong> {{ data.previous_sales }}</li>
-            <li><strong>Years of Previous Sales:</strong> {{ data.previous_sales_years }}</li>
             {% else %}
             <li><strong>Projected Volume:</strong> {{ data.volume }}</li>
             {% endif %}
+
             <li><strong>Marketing Budget:</strong> {{ data.marketing_budget }}</li>
             <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
-            <li><strong>Season:</strong> {{ data.season }}</li>
-            <li><strong>Years Covered:</strong> {{ data.year }}</li>
-            <li><strong>Months Covered:</strong> {{ data.month }}</li>
+            <li><strong>Years Predicted:</strong> {{ data.year }}</li>
+            <li><strong>Additional Months:</strong> {{ data.month }}</li>
         </ul>
 
         <h2>Improvement Suggestions</h2>
         <p>
             {% if data.product_type == "new" %}
-            Since this is a new product, focus on building awareness and scaling volume.
-            Consider introductory pricing strategies and aggressive marketing in {{ data.season }}.
+            Since this is a new product, focus on strong early promotion and market entry.
+            Your projected sales volume will depend heavily on your {{ data.marketing_timeframe }}
+            marketing plan and pricing strategy.
             {% else %}
-            With existing sales history, analyze trends across {{ data.previous_sales_years }} years.
-            If sales are declining, adjust pricing or increase marketing investments.
+            Use your previous annual sales data to identify growth opportunities. Consider optimizing
+            pricing, improving marketing allocation, and evaluating year-over-year trends.
             {% endif %}
         </p>
         {% else %}
         <p>No sales data submitted yet.</p>
         {% endif %}
 
-        <!-- Chart for improvement comparison -->
-        <canvas id="improvementChart" data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
+        <!-- Improvement Chart -->
+        <canvas id="improvementChart"
+            data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
             data-predicted="{{ data.volume if data.product_type == 'new' else data.previous_sales }}"
-            data-marketing="{{ data.marketing_budget }}" data-timeframe="{{ data.marketing_timeframe }}">
+            data-marketing="{{ data.marketing_budget }}"
+            data-timeframe="{{ data.marketing_timeframe }}">
         </canvas>
 
         <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
