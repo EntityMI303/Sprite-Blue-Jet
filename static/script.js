@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   marketingBoost = (currentSales / 12) / (marketingBudget);
                 } else if (timeframe === "years") {
                    // marketingBoost = (marketingBudget / 12) * (0.50 + Math.random() * 0.30);
-                    marketingBoost = (currentSales / 12) / ((marketingBudget /12)));
+                    marketingBoost = (currentSales / 12) / (marketingBudget /12);
                 }
                 marketingData.push(parseFloat((currentSales + (currentSales * (marketingBoost / 100))).toFixed(2)));
             }
