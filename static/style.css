@@ -1,24 +1,15 @@
-/* ============================
-   General Page Styling
-   ============================ */
+
+/* General page styling */
 body {
     background-color: #f0f8ff;
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
     padding: 0;
     line-height: 1.6;
-    color: #333;
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-/* ============================
-   Navigation Bar
-   ============================ */
+/* Navigation Bar */
 nav {
     position: fixed;
     top: 0;
@@ -36,26 +27,23 @@ nav {
     padding: 10px 20px;
     background-color: transparent;
     color: white;
+    text-decoration: none;
     border-radius: 6px;
-    font-weight: bold;
     transition: background-color 0.3s ease;
+    font-weight: bold;
 }
 
 .nav-link:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* ============================
-   Hero Section
-   ============================ */
+/* Hero Section */
 .hero {
     margin-top: 60px;
     background: linear-gradient(to right, #0077b6, #00b4d8);
     color: white;
-    padding: 80px 20px;
     text-align: center;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+    padding: 80px 20px;
 }
 
 .hero h1 {
@@ -68,48 +56,72 @@ nav {
     margin-bottom: 20px;
 }
 
-/* ============================
-   Buttons & Inputs
-   ============================ */
-button,
-input[type="submit"],
-#downloadCSV {
-    font-family: inherit;
-    font-size: 16px;
-    border: none;
+/* Features Section - Horizontal Scroll */
+.features-scroll {
+    display: flex;
+    overflow-x: auto;
+    padding: 40px 20px;
+    gap: 20px;
+    scroll-snap-type: x mandatory;
+}
+
+.features-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.features-scroll::-webkit-scrollbar-thumb {
+    background: #0078d4;
+    border-radius: 4px;
+}
+
+.feature-box {
+    flex: 0 0 auto;
+    width: 300px;
+    background-color: slategray;
+    color: white;
+    margin: 10px;
+    padding: 30px;
     border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    scroll-snap-align: start;
 }
 
-button:hover,
-input[type="submit"]:hover,
-#downloadCSV:hover {
-    transform: translateY(-2px);
+.feature-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-button,
-input[type="submit"] {
-    background-color: #4caf50;
+.feature-box h2 {
+    font-size: 1.6em;
+    margin-bottom: 12px;
+}
+
+.feature-box p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+/* Button styling */
+button {
+    background-color: #4CAF50;
+    border: none;
     color: white;
     padding: 12px 28px;
+    text-align: center;
+    font-size: 16px;
     margin: 8px 4px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
 }
 
-#downloadCSV {
-    background-color: #0078d4;
-    color: white;
-    padding: 10px 20px;
-    margin-left: 15px;
+button:hover {
+    background-color: #45a049;
 }
 
-#downloadCSV:hover {
-    background-color: #005fa3;
-}
-
-/* ============================
-   Footer
-   ============================ */
+/* Footer */
 footer {
     background-color: #e0e0e0;
     text-align: center;
@@ -118,20 +130,40 @@ footer {
     color: #555;
 }
 
-/* ============================
-   Layout for Sales & Charts
-   ============================ */
+/* Responsive layout for small screens */
+@media (max-width: 768px) {
+    .features-scroll {
+        flex-direction: row;
+        overflow-x: scroll;
+    }
+
+    .feature-box {
+        width: 80%;
+    }
+
+    .layout-container {
+        flex-direction: column;
+    }
+
+    .chart {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* Layout container for form + chart */
 .layout-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     padding: 20px;
-    gap: 20px;
 }
 
+/* Form container */
 .sales-container {
-    flex: 1 1 350px;
+    flex: 1 1 300px;
     max-width: 600px;
+    margin-right: 20px;
     background-color: #ffffff;
     padding: 25px;
     border-radius: 12px;
@@ -139,8 +171,7 @@ footer {
     text-align: left;
 }
 
-.sales-container h1,
-.sales-container h2 {
+.sales-container h1 {
     font-size: 24px;
     margin-bottom: 20px;
     color: #333;
@@ -166,47 +197,43 @@ footer {
     border: 1px solid #ccc;
     border-radius: 6px;
     box-sizing: border-box;
-    transition: border-color 0.3s ease, box-shadow 0.2s ease;
+    transition: border-color 0.3s ease;
 }
 
 .sales-container input:focus,
 .sales-container select:focus {
     border-color: #0078d4;
     outline: none;
-    box-shadow: 0 0 5px rgba(0, 120, 212, 0.3);
 }
 
 .sales-container input[type="submit"] {
+    margin-top: 10px;
+    padding: 12px;
+    font-size: 16px;
     background-color: #0078d4;
     color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .sales-container input[type="submit"]:hover {
     background-color: #005fa3;
 }
 
-/* ============================
-   Chart Containers
-   ============================ */
-.chart {
-    flex: 1 1 600px;
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    min-height: 700px;
-}
-
+/* Chart container */
 .chart-container {
-    width: 100%;
-    height: 100%;
+    flex: 1 1 600px;
+    max-width: 100%;
+    max-height: 100%;
     padding: 20px;
     box-sizing: border-box;
 }
 
 .chart-controls {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-size: 1.1em;
 }
 
@@ -215,25 +242,20 @@ footer {
 }
 
 #salesChart,
-#improvementChart,
-#histogramChart {
+#improvementChart {
     width: 100% !important;
     height: 100% !important;
     border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     background-color: #fafafa;
     padding: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* ============================
-   Improvement Guide Styling
-   ============================ */
+/* Improvement Guide styling */
 .sales-container ul {
     list-style: none;
     padding: 0;
     margin: 0 0 20px 0;
-    display: inline-block;
-    width: 100%;
 }
 
 .sales-container ul li {
@@ -246,57 +268,29 @@ footer {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* ============================
-   Histogram Feedback Summary
-   ============================ */
-#histogramFeedback {
-    background: #e8f4ff;
-    border-left: 4px solid #0078d4;
-    padding: 12px;
-    margin-top: 15px;
+/* Chart wrapper */
+.chart {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    height: 700px;
+    width: 1200px;
+    margin: auto;
+}
+
+/* CSV Download Button */
+#downloadCSV {
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 15px;
     border-radius: 6px;
-    font-size: 0.95em;
-    color: #004466;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-/* ============================
-   Responsive Layout
-   ============================ */
-@media (max-width: 1024px) {
-    .layout-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .chart {
-        width: 100%;
-        min-height: 500px;
-    }
-
-    .sales-container {
-        max-width: 90%;
-        margin-bottom: 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .hero h1 {
-        font-size: 2em;
-    }
-
-    .hero p {
-        font-size: 1em;
-    }
-
-    .feature-box {
-        width: 90%;
-        padding: 20px;
-    }
-
-    button,
-    input[type="submit"],
-    #downloadCSV {
-        font-size: 14px;
-        padding: 10px 18px;
-    }
+#downloadCSV:hover {
+    background-color: #005fa3;
 }

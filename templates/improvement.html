@@ -9,74 +9,55 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 
-<body data-page="improvement">
+<body>
 
     <header class="hero">
         <h1>📊 Improvement Guide</h1>
         <p>Recommendations based on your submitted sales data</p>
     </header>
 
-    <div class="layout-container">
+    <div class="sales-container">
         {% if data %}
-        <!-- Summary / Improvement Suggestions -->
-        <div class="sales-container">
-            <h2>Submitted Sales Data</h2>
-            <ul>
-                <li><strong>Product Type:</strong> {{ data.product_type }}</li>
-                <li><strong>Product:</strong> {{ data.product }}</li>
-                <li><strong>Price ($):</strong> {{ data.price }}</li>
-                {% if data.product_type == "old" %}
-                <li><strong>Previous Annual Sales ($):</strong> {{ data.previous_annual_sales }}</li>
-                <li><strong>Total Previous Sales ($):</strong> {{ data.previous_sales }}</li>
-                <li><strong>Years of Previous Sales:</strong> {{ data.previous_sales_years }}</li>
-                {% else %}
-                <li><strong>Projected Volume (units):</strong> {{ data.volume }}</li>
-                {% endif %}
-                <li><strong>Marketing Budget ($):</strong> {{ data.marketing_budget }}</li>
-                <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
-                <li><strong>Product Category:</strong> {{ data.product_category or "N/A" }}</li>
-                <li><strong>Season:</strong> {{ data.season or "All Seasons" }}</li>
-                <li><strong>Years to be predicted:</strong> {{ data.year }}</li>
-                <li><strong>Months to be predicted:</strong> {{ data.month }}</li>
-            </ul>
+        <h2>Submitted Sales Data</h2>
+        <ul>
+            <li><strong>Product Type:</strong> {{ data.product_type }}</li>
+            <li><strong>Product:</strong> {{ data.product }}</li>
+            <li><strong>Price:</strong> {{ data.price }}</li>
+            {% if data.product_type == "old" %}
+            <li><strong>Previous Sales:</strong> {{ data.previous_sales }}</li>
+            <li><strong>Years of Previous Sales:</strong> {{ data.previous_sales_years }}</li>
+            {% else %}
+            <li><strong>Projected Volume:</strong> {{ data.volume }}</li>
+            {% endif %}
+            <li><strong>Marketing Budget:</strong> {{ data.marketing_budget }}</li>
+            <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
+            <li><strong>Season:</strong> {{ data.season }}</li>
+            <li><strong>Years Covered:</strong> {{ data.year }}</li>
+            <li><strong>Months Covered:</strong> {{ data.month }}</li>
+        </ul>
 
-            <h2>Improvement Suggestions</h2>
-            <p>
-                {% if data.product_type == "new" %}
-                Since this is a new product, focus on building awareness and scaling volume.
-                Consider introductory pricing strategies and targeted marketing campaigns based on the product category.
-                Leverage seasonal boosts during {{ data.season or "all seasons" }} for maximum impact.
-                {% else %}
-                With existing sales history, analyze trends over {{ data.previous_sales_years }} years.
-                If sales are declining, adjust pricing or increase marketing investments.
-                Leverage seasonal boosts based on the product category to optimize sales.
-                {% endif %}
-            </p>
-
-            <div style="margin-top: 20px;">
-                <a href="{{ url_for('home') }}"><button type="button">Back to Home</button></a>
-                <a href="{{ url_for('download_sales') }}"><button type="button">Download Data</button></a>
-            </div>
-        </div>
-
-        <!-- Histogram Chart -->
-        <div class="chart">
-            <h2>Sales Comparison Histogram</h2>
-            <div class="chart-controls">
-                <label><input type="checkbox" id="togglePrevious" checked> Show Previous Sales</label>
-                <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
-                <label><input type="checkbox" id="toggleMarketing" checked> Apply Marketing Budget</label>
-                <button id="downloadCSV" type="button">Download CSV</button>
-            </div>
-            <div class="chart-container" style="height: 400px;">
-                <canvas id="histogramChart"></canvas>
-            </div>
-            <div id="histogramFeedback" style="margin-top: 10px;"></div>
-        </div>
-
+        <h2>Improvement Suggestions</h2>
+        <p>
+            {% if data.product_type == "new" %}
+            Since this is a new product, focus on building awareness and scaling volume.
+            Consider introductory pricing strategies and aggressive marketing in {{ data.season }}.
+            {% else %}
+            With existing sales history, analyze trends across {{ data.previous_sales_years }} years.
+            If sales are declining, adjust pricing or increase marketing investments.
+            {% endif %}
+        </p>
         {% else %}
         <p>No sales data submitted yet.</p>
         {% endif %}
+
+        <!-- Chart for improvement comparison -->
+        <canvas id="improvementChart" data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
+            data-predicted="{{ data.volume if data.product_type == 'new' else data.previous_sales }}"
+            data-marketing="{{ data.marketing_budget }}" data-timeframe="{{ data.marketing_timeframe }}">
+        </canvas>
+
+        <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
+        <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
     </div>
 
     <footer>

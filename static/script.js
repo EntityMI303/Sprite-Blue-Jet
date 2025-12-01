@@ -1,218 +1,275 @@
+// Utility function to convert chart data to CSV
+function exportToCSV(labels, predictedData, marketingData) {
+    let csvContent = "Month,Predicted Sales,Sales Based On Market Investments\n";
+    for (let i = 0; i < labels.length; i++) {
+        const row = [
+            labels[i],
+            predictedData[i] || "",
+            marketingData[i] || ""
+        ].join(",");
+        csvContent += row + "\n";
+    }
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "sales_data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
-    const salesCanvas = document.getElementById("salesChart");
-    const histogramCanvas = document.getElementById("histogramChart");
-    const downloadCSVBtn = document.getElementById("downloadCSV");
-    const salesForm = document.getElementById("salesForm");
-
-    const pageType = document.body.dataset.page;
-
     // ============================
-    // Helper: Get season for month
+    // SALES PAGE LOGIC
     // ============================
-    function getSeasonForMonth(monthIndex) {
-        const month = (monthIndex % 12) + 1;
-        if ([12, 1, 2].includes(month)) return "winter";
-        if ([3, 4, 5].includes(month)) return "spring";
-        if ([6, 7, 8].includes(month)) return "summer";
-        if ([9, 10, 11].includes(month)) return "fall";
-        return "all_seasons";
-    }
+    const form = document.querySelector("form");
+    const chartCanvas = document.getElementById("salesChart");
+    const calendarOutput = document.getElementById("salesCalendar");
 
-    // ============================
-    // Calculate sales
-    // ============================
-    function calculateSales(data) {
-        const productType = data.product_type;
-        const price = parseFloat(data.price || 0);
-        const marketingBudget = parseFloat(data.marketing_budget || 0);
-        const timeframe = data.marketing_timeframe || "months";
-        const years = parseInt(data.year || 1);
-        const months = parseInt(data.month || 0);
-        const monthsTotal = years * 12 + months;
+    const togglePredicted = document.getElementById("togglePredicted");
+    const toggleMarketing = document.getElementById("toggleMarketing");
+    const downloadBtn = document.getElementById("downloadCSV");
 
-        let baseMonthlySales;
-        if (productType === "old") {
-            baseMonthlySales = parseFloat(data.previous_sales || 0);
+    // Product type toggle blocks
+    const productType = document.getElementById("product_type");
+    const previousSalesBlock = document.getElementById("previousSalesBlock");
+    const volumeBlock = document.getElementById("volumeBlock");
+
+    // Toggle fields based on product type
+    function toggleProductFields() {
+        if (productType && productType.value === "old") {
+            previousSalesBlock.style.display = "block";
+            volumeBlock.style.display = "none";
         } else {
-            baseMonthlySales = parseFloat(data.volume || 0) * price;
+            previousSalesBlock.style.display = "none";
+            volumeBlock.style.display = "block";
         }
-
-        // Load seasonal boosts
-        let seasonalBoosts = {};
-        if (data.product_category) {
-            try {
-                seasonalBoosts = JSON.parse(
-                    document.querySelector(
-                        `#product_category option[value="${data.product_category}"]`
-                    )?.dataset.boost || "{}"
-                );
-            } catch (e) {
-                seasonalBoosts = {};
-            }
-        }
-
-        const labels = [];
-        const previousData = [];
-        const predictedData = [];
-        const marketingData = [];
-
-        const today = new Date();
-
-        for (let i = 0; i < monthsTotal; i++) {
-            const labelDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
-            labels.push(
-                labelDate.toLocaleDateString("en-US", { month: "short", year: "numeric" })
-            );
-
-            const monthSeason = getSeasonForMonth(i);
-            const seasonMultiplier = seasonalBoosts[monthSeason] ? 1 + seasonalBoosts[monthSeason] / 100 : 1;
-
-            // Add random fluctuation ±5%
-            let predictedMonthSales = baseMonthlySales * seasonMultiplier * (1 + (Math.random() * 0.1 - 0.05));
-
-            // Apply marketing budget
-            const effectiveBudget = timeframe === "years" ? marketingBudget / 12 : marketingBudget;
-            const marketingMultiplier = 1 + effectiveBudget * 0.05 / 100;
-            const marketingMonthSales = predictedMonthSales * marketingMultiplier;
-
-            previousData.push(baseMonthlySales);
-            predictedData.push(predictedMonthSales);
-            marketingData.push(marketingMonthSales);
-        }
-
-        return { labels, previousData, predictedData, marketingData };
+    }
+    if (productType) {
+        productType.addEventListener("change", toggleProductFields);
+        toggleProductFields();
     }
 
-    // ============================
-    // SALES PAGE — LINE GRAPH
-    // ============================
-    if (pageType === "sales" && salesForm) {
-        salesForm.addEventListener("submit", function (e) {
+    let labels = [];
+    let predictedData = [];
+    let marketingData = [];
+
+    if (form && chartCanvas) {
+        form.addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            const formData = new FormData(salesForm);
+            const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-            // Convert numeric values
-            data.price = parseFloat(data.price || 0);
-            data.marketing_budget = parseFloat(data.marketing_budget || 0);
-            data.year = parseInt(data.year || 1);
-            data.month = parseInt(data.month || 0);
+            await fetch("/sales", {
+                method: "POST",
+                body: formData
+            });
 
+            const product = data.product;
+            const season = data.season;
+            const year = parseInt(data.year);
+            const month = parseInt(data.month);
+            const marketingBudget = parseFloat(data.marketing_budget);
+            const timeframe = data.marketing_timeframe;
+
+            // Handle old vs new product
+            let currentSales = 0;
             if (data.product_type === "old") {
-                data.previous_sales = parseFloat(data.previous_sales || 0);
+                currentSales = parseFloat(data.previous_sales);
             } else {
-                data.volume = parseInt(data.volume || 0);
+                const volume = parseInt(data.volume);
+                const price = parseFloat(data.price);
+                currentSales = volume * price; // base sales for new product
             }
 
-            const { labels, previousData, predictedData, marketingData } = calculateSales(data);
+            const seasonAdjustments = {
+                spring: 15,
+                summer: 10,
+                fall: 20,
+                winter: 25,
+                all_seasons: 0
+            };
 
-            const ctx = salesCanvas.getContext("2d");
-            if (window.salesChartInstance) window.salesChartInstance.destroy();
+            let totalDays = (month * 30) + (year * 365) + seasonAdjustments[season];
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + totalDays);
 
-            window.salesChartInstance = new Chart(ctx, {
-                type: "line",
+            calendarOutput.innerText =
+                `Sales prediction for ${product} launches on ${futureDate.toDateString()} (adjusted for ${season}).`;
+
+            const monthsAhead = month === 0 ? (year * 12) : Math.ceil(totalDays / 30);
+
+            labels = [];
+            predictedData = [];
+            marketingData = [];
+
+            for (let i = 0; i < monthsAhead; i++) {
+                const monthLabel = new Date(today.getFullYear(), today.getMonth() + i, 1)
+                    .toLocaleString('default', { month: 'short', year: 'numeric' });
+                labels.push(monthLabel);
+
+                // Sales growth/decay simulation
+                currentSales *= (0.95 + Math.random() * 0.2);
+                predictedData.push(parseFloat(currentSales.toFixed(2)));
+
+                // Marketing impact adjusted by timeframe
+                let marketingBoost = 0;
+                if (timeframe === "months") {
+                    marketingBoost = marketingBudget * (0.01 + Math.random() * 0.05);
+                } else if (timeframe === "years") {
+                    marketingBoost = (marketingBudget / 12) * (0.01 + Math.random() * 0.05);
+                }
+                marketingData.push(parseFloat((currentSales + marketingBoost).toFixed(2)));
+            }
+
+            if (window.salesChartInstance) {
+                window.salesChartInstance.destroy();
+            }
+
+            window.salesChartInstance = new Chart(chartCanvas, {
+                type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: "Previous Sales", data: previousData, borderColor: "rgba(100,149,237,1)", tension: 0.3, fill: false },
-                        { label: "Predicted Sales", data: predictedData, borderColor: "rgba(60,179,113,1)", tension: 0.3, fill: false },
-                        { label: "Sales with Marketing", data: marketingData, borderColor: "rgba(255,99,132,1)", tension: 0.3, fill: false }
+                        {
+                            label: 'Predicted Sales',
+                            data: predictedData,
+                            borderColor: 'blue',
+                            backgroundColor: 'blue',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Sales Based On Market Investments',
+                            data: marketingData,
+                            borderColor: 'orange',
+                            backgroundColor: 'orange',
+                            tension: 0.3
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         tooltip: {
+                            enabled: true,
                             callbacks: {
-                                label: (context) => `${context.dataset.label}: $${context.raw.toLocaleString()}`
+                                label: function (context) {
+                                    return `${context.dataset.label}: $${context.parsed.y}`;
+                                }
+                            }
+                        },
+                        zoom: {
+                            zoom: {
+                                wheel: { enabled: true },
+                                pinch: { enabled: true },
+                                mode: 'xy'
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'xy'
+                            }
+                        },
+                        dragData: {
+                            round: 2,
+                            showTooltip: true,
+                            onDragEnd: function (e, datasetIndex, index, value) {
+                                window.salesChartInstance.data.datasets[datasetIndex].data[index] = value;
+                                window.salesChartInstance.update();
+
+                                fetch("/update-sales-data", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        labels: labels,
+                                        predicted: window.salesChartInstance.data.datasets[0].data,
+                                        marketing: window.salesChartInstance.data.datasets[1].data
+                                    })
+                                });
                             }
                         }
-                    },
-                    scales: {
-                        x: { title: { display: true, text: "Date" } },
-                        y: { title: { display: true, text: "Sales ($)" }, beginAtZero: true }
                     }
                 }
             });
         });
+
+        if (togglePredicted) {
+            togglePredicted.addEventListener("change", function () {
+                if (window.salesChartInstance) {
+                    window.salesChartInstance.setDatasetVisibility(0, togglePredicted.checked);
+                    window.salesChartInstance.update();
+                }
+            });
+        }
+
+        if (toggleMarketing) {
+            toggleMarketing.addEventListener("change", function () {
+                if (window.salesChartInstance) {
+                    window.salesChartInstance.setDatasetVisibility(1, toggleMarketing.checked);
+                    window.salesChartInstance.update();
+                }
+            });
+        }
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener("click", function () {
+                if (labels.length > 0) {
+                    exportToCSV(labels, predictedData, marketingData);
+                } else {
+                    alert("No data available to export. Please run a prediction first.");
+                }
+            });
+        }
     }
 
     // ============================
-    // HISTOGRAM PAGE — BAR GRAPH & Feedback
+    // IMPROVEMENT GUIDE PAGE LOGIC
     // ============================
-    if (histogramCanvas) {
-        const data = window.SALES_DATA;
-        if (!data) return;
+    const improvementCanvas = document.getElementById("improvementChart");
+    if (improvementCanvas) {
+        const ctx = improvementCanvas.getContext('2d');
 
-        const { labels, previousData, predictedData, marketingData } = calculateSales(data);
+        const previousSales = parseFloat(improvementCanvas.dataset.previous || 0);
+        const predictedSales = parseFloat(improvementCanvas.dataset.predicted || 0);
+        const marketingImpact = parseFloat(improvementCanvas.dataset.marketing || 0);
+        const timeframe = improvementCanvas.dataset.timeframe || "";
 
-        const ctx = histogramCanvas.getContext("2d");
-        if (window.histogramChartInstance) window.histogramChartInstance.destroy();
-
-        window.histogramChartInstance = new Chart(ctx, {
-            type: "bar",
+        new Chart(ctx, {
+            type: 'bar',
             data: {
-                labels: labels,
-                datasets: [
-                    { label: "Previous/Base", data: previousData, backgroundColor: "rgba(100,149,237,0.7)", borderRadius: 5 },
-                    { label: "Predicted Sales", data: predictedData, backgroundColor: "rgba(60,179,113,0.7)", borderRadius: 5 },
-                    { label: "Marketing Applied", data: marketingData, backgroundColor: "rgba(255,99,132,0.7)", borderRadius: 5 }
-                ]
+                labels: [
+                    'Previous Sales',
+                    `Predicted Sales (${timeframe})`,
+                    'Sales Calculated with Marketing Investments'
+                ],
+                datasets: [{
+                    label: 'Comparison ($)',
+                    data: [previousSales, predictedSales, marketingImpact],
+                    backgroundColor: ['blue', 'purple', 'orange']
+                }]
             },
             options: {
                 responsive: true,
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: (context) => `${context.dataset.label}: $${context.raw.toLocaleString()}`
+                            label: function (context) {
+                                return `$${context.parsed.y}`;
+                            }
                         }
-                    }
+                    },
+                    legend: { display: false }
                 },
                 scales: {
-                    x: { title: { display: true, text: "Date" } },
-                    y: { title: { display: true, text: "Sales ($)" }, beginAtZero: true }
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Amount ($)' }
+                    }
                 }
             }
         });
-
-        // Summary feedback
-        const totalPredicted = predictedData.reduce((a, b) => a + b, 0);
-        const totalMarketing = marketingData.reduce((a, b) => a + b, 0);
-        const feedback = document.getElementById("histogramFeedback");
-        if (feedback) {
-            feedback.innerHTML = `
-                <p>Total predicted sales: $${Math.round(totalPredicted).toLocaleString()}</p>
-                <p>Total sales with marketing: $${Math.round(totalMarketing).toLocaleString()}</p>
-                <a href="index.html"><button type="button">Back to Home</button></a>
-            `;
-        }
     }
-
-    // ============================
-    // CSV Export
-    // ============================
-    downloadCSVBtn?.addEventListener("click", () => {
-        let chartInstance = window.salesChartInstance || window.histogramChartInstance;
-        if (!chartInstance) {
-            alert("Please generate chart first.");
-            return;
-        }
-
-        const datasets = chartInstance.data.datasets;
-        const labels = chartInstance.data.labels;
-
-        let csvContent = "Date," + datasets.map(ds => ds.label).join(",") + "\n";
-        labels.forEach((label, i) => {
-            const row = [label];
-            datasets.forEach(ds => row.push(ds.data[i]));
-            csvContent += row.join(",") + "\n";
-        });
-
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "sales_data.csv";
-        link.click();
-    });
 });
