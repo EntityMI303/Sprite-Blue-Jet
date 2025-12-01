@@ -83,14 +83,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 currentSales = volume * price;
             }
 
-            const seasonAdjustments = { spring: 15, summer: 10, fall: 20, winter: 25, all_seasons: 0 };
+            /*const seasonAdjustments = { spring: 15, summer: 10, fall: 20, winter: 25, all_seasons: 0 };
             let totalDays = (month * 30) + (year * 365) + seasonAdjustments[season];
             const today = new Date();
             const futureDate = new Date();
             futureDate.setDate(today.getDate() + totalDays);
 
             calendarOutput.innerText =
-                `Sales prediction for ${product} launches on ${futureDate.toDateString()} (adjusted for ${season}).`;
+                `Sales prediction for ${product} launches on ${futureDate.toDateString()} (adjusted for ${season}).`;*/
 
             const monthsAhead = month === 0 ? (year * 12) : Math.ceil(totalDays / 30);
             labels = [];
