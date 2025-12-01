@@ -1,12 +1,12 @@
 {
   "product_type": "old",
-  "product": "Cars",
-  "price": 17.0,
-  "marketing_budget": 2000.0,
+  "product": "Toys",
+  "price": 14.0,
+  "marketing_budget": 4000.0,
   "marketing_timeframe": "months",
   "season": null,
   "year": 1,
   "month": 0,
-  "previous_sales": 13000.0,
+  "previous_sales": 130000.0,
   "previous_sales_years": 0
 }
