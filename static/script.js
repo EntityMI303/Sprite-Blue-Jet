@@ -1,16 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
     const histogramCanvas = document.getElementById("histogramChart");
     const downloadCSVBtn = document.getElementById("downloadCSV");
-    const form = document.querySelector("form");
+    const form = document.getElementById("salesForm");
+    const productType = document.getElementById("product_type");
+    const previousSalesBlock = document.getElementById("previousSalesBlock");
+    const volumeBlock = document.getElementById("volumeBlock");
 
     // Hide chart until prediction is triggered
     if (histogramCanvas) {
         histogramCanvas.style.display = "none";
     }
 
-    // Use window.SALES_DATA passed from HTML
-    const data = window.SALES_DATA || null;
-    if (!data) return;
+    // ============================
+    // Toggle product blocks
+    // ============================
+    function toggleBlocks() {
+        if (productType.value === "old") {
+            previousSalesBlock.style.display = "block";
+            volumeBlock.style.display = "none";
+        } else {
+            previousSalesBlock.style.display = "none";
+            volumeBlock.style.display = "block";
+        }
+    }
+    productType.addEventListener("change", toggleBlocks);
+    toggleBlocks(); // run once on load
 
     // ============================
     // Helper: Get season for month
@@ -25,28 +39,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ============================
+    // Seasonal Boosts (data-driven)
+    // ============================
+    function seasonalBoosts(category, season) {
+        let boosts = {};
+        try {
+            const option = document.querySelector(`#product_category option[value="${category}"]`);
+            if (option && option.dataset.boost) {
+                boosts = JSON.parse(option.dataset.boost);
+            }
+        } catch (e) {
+            boosts = {};
+        }
+        return boosts[season] ? 1 + boosts[season] / 100 : 1;
+    }
+
+    // ============================
     // Calculate sales
     // ============================
-    function calculateSales(data) {
-        const productType = data.product_type;
-        const previousSales = parseFloat(data.previous_sales || 0);
-        const projectedVolume = parseFloat(data.volume || 0);
-        const price = parseFloat(data.price || 0);
-        const marketingBudget = parseFloat(data.marketing_budget || 0);
-        const years = parseInt(data.year || 1);
-        const months = parseInt(data.month || 0);
+    function calculateSales(formData) {
+        const productType = formData.get("product_type");
+        const previousSales = parseFloat(formData.get("previous_sales") || 0);
+        const projectedVolume = parseFloat(formData.get("volume") || 0);
+        const price = parseFloat(formData.get("price") || 0);
+        const marketingBudget = parseFloat(formData.get("marketing_budget") || 0);
+        const years = parseInt(formData.get("year") || 1);
+        const months = parseInt(formData.get("month") || 0);
         const monthsTotal = years * 12 + months;
+        const category = formData.get("product_category");
 
         const baseMonthlySales = productType === "old" ? previousSales : projectedVolume * price;
-
-        let seasonalBoosts = {};
-        if (data.product_category) {
-            try {
-                seasonalBoosts = JSON.parse(document.querySelector(`#product_category option[value="${data.product_category}"]`)?.dataset.boost || '{}');
-            } catch (e) {
-                seasonalBoosts = {};
-            }
-        }
 
         const labels = [];
         const previousData = [];
@@ -59,10 +81,10 @@ document.addEventListener("DOMContentLoaded", function () {
             labels.push(labelDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
 
             const monthSeason = getSeasonForMonth(i);
-            const seasonMultiplier = seasonalBoosts[monthSeason] ? 1 + seasonalBoosts[monthSeason] / 100 : 1;
+            const seasonMultiplier = seasonalBoosts(category, monthSeason);
 
             let predictedMonthSales = baseMonthlySales * seasonMultiplier;
-            predictedMonthSales *= 1 + (Math.random() * 0.1 - 0.05);
+            predictedMonthSales *= 1 + (Math.random() * 0.1 - 0.05); // +/-5% noise
 
             const marketingMultiplier = 1 + (marketingBudget * 0.05) / 100;
             const marketingMonthSales = predictedMonthSales * marketingMultiplier;
@@ -84,7 +106,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Show chart canvas
         histogramCanvas.style.display = "block";
 
-        const { labels, previousData, predictedData, marketingData } = calculateSales(data);
+        const formData = new FormData(form);
+        const { labels, previousData, predictedData, marketingData } = calculateSales(formData);
         const ctx = histogramCanvas.getContext("2d");
 
         // Destroy old chart if exists
@@ -135,6 +158,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                 return `${context.dataset.label}: $${context.raw.toLocaleString()}`;
                             }
                         }
+                    },
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 20,
+                            padding: 15
+                        }
                     }
                 },
                 scales: {
@@ -147,6 +177,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
+
+        // ============================
+        // Add legend note below chart
+        // ============================
+        let legendNote = document.getElementById("chartLegendNote");
+        if (!legendNote) {
+            legendNote = document.createElement("p");
+            legendNote.id = "chartLegendNote";
+            legendNote.style.marginTop = "10px";
+            legendNote.style.fontSize = "0.9em";
+            legendNote.style.color = "#555";
+            histogramCanvas.parentNode.appendChild(legendNote);
+        }
+        legendNote.innerHTML = "Legend: <span style='color:cornflowerblue;'>■ Previous Sales</span> | <span style='color:mediumseagreen;'>■ Predicted Sales</span> | <span style='color:tomato;'>■ Sales with Marketing</span>";
     });
 
     // ============================

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, send_file
+from flask import Flask, render_template, request, session, send_file, redirect, url_for
 import json, os, sys
 
 app = Flask(__name__)
@@ -54,17 +54,18 @@ def sales():
         # Old product uses previous sales
         if product_type == "old":
             previous_sales = float(request.form.get("previous_sales", 0))
+            # optional years of previous sales
             previous_sales_years = int(request.form.get("previous_sales_years", 1))
-            previous_annual_sales = previous_sales / previous_sales_years if previous_sales_years > 0 else 0
-
+            previous_annual_sales = (
+                previous_sales / previous_sales_years if previous_sales_years > 0 else 0
+            )
             data.update({
                 "previous_sales": previous_sales,
                 "previous_sales_years": previous_sales_years,
                 "previous_annual_sales": previous_annual_sales
             })
-
-        # New product uses volume estimate
         else:
+            # New product uses volume estimate
             volume = int(request.form.get("volume", 0))
             data["volume"] = volume
 
@@ -72,12 +73,12 @@ def sales():
         # Save to session + local JSON
         # ==========================
         session["sales_data"] = data
-
         file_path = os.path.join(os.path.dirname(__file__), "sales_data.json")
         with open(file_path, "w") as f:
             json.dump(data, f, indent=2)
 
-        return render_template("improvement.html", data=data)
+        # After POST, stay on sales.html so JS can render chart
+        return render_template("sales.html", data=data)
 
     # GET request
     return render_template("sales.html")
@@ -86,7 +87,7 @@ def sales():
 # ==========================
 # Download sales JSON
 # ==========================
-@app.route('/download-sales-data')
+@app.route('/download_sales')
 def download_sales():
     file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
     if os.path.exists(file_path):
