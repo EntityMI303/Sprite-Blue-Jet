@@ -41,6 +41,8 @@ def sales():
             data['previous_sales_years'] = int(request.form.get('previous_sales_years', 0))
         else:  # new product
             data['volume'] = int(request.form.get('volume', 0))
+            # Add projected sales for improvement chart
+            data['projected_sales'] = round(data['volume'] * data['price'], 2)
 
         # Save in session and to JSON
         session['sales_data'] = data
@@ -67,6 +69,13 @@ def download_sales():
 def improvement():
     # Keep Improvement Guide data intact
     data = session.get('sales_data')
+
+    # For new products, calculate projected sales ($) if not already present
+    if data and data.get('product_type') == 'new':
+        volume = data.get('volume', 0)
+        price = data.get('price', 0)
+        data['projected_sales'] = round(volume * price, 2)
+
     return render_template('improvement.html', data=data)
 
 

@@ -239,21 +239,25 @@ document.addEventListener("DOMContentLoaded", function () {
         const ctx = improvementCanvas.getContext('2d');
 
         const previousSales = parseFloat(improvementCanvas.dataset.previous || 0);
-        const predictedSales = parseFloat(improvementCanvas.dataset.predicted || 0);
+        let predictedSales = parseFloat(improvementCanvas.dataset.predicted || 0);
         const marketingImpact = parseFloat(improvementCanvas.dataset.marketing || 0);
         const timeframe = improvementCanvas.dataset.timeframe || "";
+
+        let chartData = [];
+
+        if (previousSales === 0) { // New product
+            chartData = [0, predictedSales, marketingImpact];
+        } else { // Old product
+            chartData = [previousSales, predictedSales, marketingImpact];
+        }
 
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: [
-                    'Previous Sales',
-                    `Predicted Sales (${timeframe})`,
-                    'Marketing Budget'
-                ],
+                labels: ['Previous Sales', `Predicted Sales (${timeframe})`, 'Marketing Budget'],
                 datasets: [{
                     label: 'Comparison ($)',
-                    data: [previousSales, predictedSales, marketingImpact],
+                    data: chartData,
                     backgroundColor: ['blue', 'purple', 'orange']
                 }]
             },

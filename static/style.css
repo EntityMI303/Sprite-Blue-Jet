@@ -142,6 +142,27 @@ footer {
 /* ============================
    RESPONSIVE DESIGN
 ============================ */
+@media (max-width: 1200px) {
+    .chart {
+        width: 95%;
+        height: 600px;
+    }
+
+    .sales-container {
+        max-width: 90%;
+        margin: 20px auto;
+    }
+
+    .improvement-wrapper {
+        flex-direction: column;
+    }
+
+    #improvementChart {
+        width: 100% !important;
+        height: 400px !important;
+    }
+}
+
 @media (max-width: 768px) {
     .features-scroll {
         flex-direction: row;
@@ -160,6 +181,10 @@ footer {
         width: 100%;
         height: auto;
     }
+
+    .improvement-wrapper {
+        flex-direction: column;
+    }
 }
 
 /* ============================
@@ -173,12 +198,12 @@ footer {
 }
 
 /* ============================
-   SALES FORM CONTAINER
+   SALES FORM & IMPROVEMENT CONTAINER
 ============================ */
 .sales-container {
-    flex: 1 1 300px;
+    flex: 1 1 400px;
     max-width: 600px;
-    margin-right: 20px;
+    margin: 20px;
     background-color: #ffffff;
     padding: 25px;
     border-radius: 12px;
@@ -186,7 +211,8 @@ footer {
     text-align: left;
 }
 
-.sales-container h1 {
+.sales-container h1,
+.sales-container h2 {
     font-size: 24px;
     margin-bottom: 20px;
     color: #333;
@@ -259,14 +285,37 @@ footer {
 #improvementChart {
     width: 100% !important;
     height: 100% !important;
-    border-radius: 8px;
+    border-radius: 12px;
     background-color: #fafafa;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
 }
 
 /* ============================
-   IMPROVEMENT PAGE STYLING
+   IMPROVEMENT PAGE WRAPPER
+============================ */
+.improvement-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.improvement-wrapper .sales-container {
+    flex: 1 1 45%;
+    max-width: 500px;
+}
+
+.improvement-wrapper .chart {
+    flex: 1 1 50%;
+    max-width: 700px;
+    height: 500px;
+    margin: 0 auto;
+}
+
+/* ============================
+   IMPROVEMENT PAGE LIST STYLING
 ============================ */
 .sales-container ul {
     list-style: none;
@@ -285,19 +334,6 @@ footer {
 }
 
 /* ============================
-   CHART BOX (IMPROVEMENT PAGE)
-============================ */
-.chart {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    height: 700px;
-    width: 1200px;
-    margin: auto;
-}
-
-/* ============================
    CSV DOWNLOAD BUTTON
 ============================ */
 #downloadCSV {
@@ -305,7 +341,7 @@ footer {
     color: white;
     border: none;
     padding: 10px 20px;
-    margin-left: 15px;
+    margin: 10px 5px;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -313,4 +349,11 @@ footer {
 
 #downloadCSV:hover {
     background-color: #005fa3;
+}
+
+/* ============================
+   IMPROVEMENT CHART COLORS
+============================ */
+#improvementChart .chartjs-render-monitor {
+    max-height: 100%;
 }
