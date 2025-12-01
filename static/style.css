@@ -62,54 +62,6 @@ nav {
 }
 
 /* ============================
-   FEATURES HORIZONTAL SCROLL
-============================ */
-.features-scroll {
-    display: flex;
-    overflow-x: auto;
-    padding: 40px 20px;
-    gap: 20px;
-    scroll-snap-type: x mandatory;
-}
-
-.features-scroll::-webkit-scrollbar {
-    height: 8px;
-}
-
-.features-scroll::-webkit-scrollbar-thumb {
-    background: #0078d4;
-    border-radius: 4px;
-}
-
-.feature-box {
-    flex: 0 0 auto;
-    width: 300px;
-    background-color: slategray;
-    color: white;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    scroll-snap-align: start;
-}
-
-.feature-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.feature-box h2 {
-    font-size: 1.6em;
-    margin-bottom: 12px;
-}
-
-.feature-box p {
-    font-size: 1.1em;
-    margin-bottom: 20px;
-}
-
-/* ============================
    BUTTONS
 ============================ */
 button {
@@ -140,75 +92,61 @@ footer {
 }
 
 /* ============================
-   RESPONSIVE DESIGN
+   LAYOUT WRAPPER (Sales Page)
 ============================ */
-@media (max-width: 1200px) {
-    .chart {
-        width: 95%;
-        height: 600px;
-    }
-
-    .sales-container {
-        max-width: 90%;
-        margin: 20px auto;
-    }
-
-    .improvement-wrapper {
-        flex-direction: column;
-    }
-
-    #improvementChart {
-        width: 100% !important;
-        height: 400px !important;
-    }
+.sales-wrapper {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-@media (max-width: 768px) {
-    .features-scroll {
-        flex-direction: row;
-        overflow-x: scroll;
-    }
+.sales-wrapper .sales-container {
+    flex: 1 1 400px;
+    max-width: 500px;
+}
 
-    .feature-box {
-        width: 80%;
-    }
-
-    .layout-container {
-        flex-direction: column;
-    }
-
-    .chart {
-        width: 100%;
-        height: auto;
-    }
-
-    .improvement-wrapper {
-        flex-direction: column;
-    }
+.sales-wrapper .chart {
+    flex: 1 1 600px;
+    max-width: 800px;
+    min-width: 300px;
+    height: 500px;
 }
 
 /* ============================
-   LAYOUT WRAPPER
+   IMPROVEMENT PAGE WRAPPER
 ============================ */
-.layout-container {
+.improvement-wrapper {
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
     padding: 20px;
+}
+
+.improvement-wrapper .sales-container {
+    flex: 1 1 45%;
+    max-width: 500px;
+}
+
+.improvement-wrapper .chart {
+    flex: 1 1 50%;
+    max-width: 700px;
+    height: 500px;
 }
 
 /* ============================
    SALES FORM & IMPROVEMENT CONTAINER
 ============================ */
 .sales-container {
-    flex: 1 1 400px;
-    max-width: 600px;
-    margin: 20px;
     background-color: #ffffff;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     text-align: left;
+    margin: 10px auto;
 }
 
 .sales-container h1,
@@ -266,9 +204,8 @@ footer {
    CHART SECTION
 ============================ */
 .chart-container {
-    flex: 1 1 600px;
-    max-width: 100%;
-    padding: 20px;
+    width: 100%;
+    height: 100%;
 }
 
 .chart-controls {
@@ -289,29 +226,6 @@ footer {
     background-color: #fafafa;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
-}
-
-/* ============================
-   IMPROVEMENT PAGE WRAPPER
-============================ */
-.improvement-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.improvement-wrapper .sales-container {
-    flex: 1 1 45%;
-    max-width: 500px;
-}
-
-.improvement-wrapper .chart {
-    flex: 1 1 50%;
-    max-width: 700px;
-    height: 500px;
-    margin: 0 auto;
 }
 
 /* ============================
@@ -352,8 +266,43 @@ footer {
 }
 
 /* ============================
-   IMPROVEMENT CHART COLORS
+   RESPONSIVE DESIGN
 ============================ */
-#improvementChart .chartjs-render-monitor {
-    max-height: 100%;
+@media (max-width: 1200px) {
+    .chart {
+        width: 95%;
+        height: 500px;
+    }
+
+    .sales-container {
+        max-width: 90%;
+        margin: 20px auto;
+    }
+
+    .improvement-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #improvementChart {
+        width: 100% !important;
+        height: 400px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .sales-wrapper,
+    .improvement-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart {
+        width: 100%;
+        height: 400px;
+    }
+
+    .sales-container {
+        max-width: 95%;
+    }
 }

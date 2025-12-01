@@ -16,54 +16,53 @@
         <p>Recommendations based on your submitted sales data</p>
     </header>
 
-    <div class="sales-container">
-        {% if data %}
-        <h2>Submitted Sales Data</h2>
-        <ul>
-            <li><strong>Product Type:</strong> {{ data.product_type }}</li>
-            <li><strong>Product:</strong> {{ data.product }}</li>
-            <li><strong>Price ($):</strong> {{ data.price }}</li>
+    {% if data %}
+    <div class="improvement-wrapper">
+        <!-- Left: Summary -->
+        <div class="sales-container">
+            <h2>Submitted Sales Data</h2>
+            <ul>
+                <li><strong>Product Type:</strong> {{ data.product_type }}</li>
+                <li><strong>Product:</strong> {{ data.product }}</li>
+                <li><strong>Price:</strong> {{ data.price }}</li>
+                {% if data.product_type == "old" %}
+                <li><strong>Previous Sales:</strong> {{ data.previous_sales }}</li>
+                {% else %}
+                <li><strong>Projected Volume:</strong> {{ data.volume }}</li>
+                {% endif %}
+                <li><strong>Marketing Budget:</strong> {{ data.marketing_budget }}</li>
+                <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
+                <li><strong>Years Predicted:</strong> {{ data.year }}</li>
+                <li><strong>Additional Months:</strong> {{ data.month }}</li>
+            </ul>
 
-            {% if data.product_type == "old" %}
-            <li><strong>Previous Sales ($):</strong> {{ data.previous_sales }}</li>
-            {% else %}
-            <li><strong>Projected Volume (units):</strong> {{ data.volume }}</li>
-            <li><strong>Projected Sales ($):</strong> {{ (data.volume * data.price) | round(2) }}</li>
-            {% endif %}
+            <h2>Improvement Suggestions</h2>
+            <p>
+                {% if data.product_type == "new" %}
+                Since this is a new product, focus on strong early promotion and market entry.
+                Your projected sales volume will depend heavily on your {{ data.marketing_timeframe }} marketing plan.
+                {% else %}
+                Use your previous annual sales data to identify growth opportunities. Consider optimizing pricing, improving marketing allocation, and evaluating year-over-year trends.
+                {% endif %}
+            </p>
 
-            <li><strong>Marketing Budget ($):</strong> {{ data.marketing_budget }}</li>
-            <li><strong>Marketing Timeframe:</strong> {{ data.marketing_timeframe }}</li>
-            <li><strong>Years Predicted:</strong> {{ data.year }}</li>
-            <li><strong>Additional Months:</strong> {{ data.month }}</li>
-        </ul>
+            <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
+            <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
+        </div>
 
-        <h2>Improvement Suggestions</h2>
-        <p>
-            {% if data.product_type == "new" %}
-            Since this is a new product, focus on strong early promotion and market entry.
-            Your projected sales volume will depend heavily on your {{ data.marketing_timeframe }}
-            marketing plan and pricing strategy.
-            {% else %}
-            Use your previous annual sales data to identify growth opportunities. Consider optimizing
-            pricing, improving marketing allocation, and evaluating year-over-year trends.
-            {% endif %}
-        </p>
-
-        <!-- Improvement Chart -->
-        <canvas id="improvementChart"
-            data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
-            data-predicted="{{ (data.volume * data.price) if data.product_type == 'new' else data.previous_sales }}"
-            data-marketing="{{ data.marketing_budget }}"
-            data-timeframe="{{ data.marketing_timeframe }}">
-        </canvas>
-
-        <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
-        <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
-
-        {% else %}
-        <p>No sales data submitted yet.</p>
-        {% endif %}
+        <!-- Right: Chart -->
+        <div class="chart">
+            <canvas id="improvementChart"
+                data-previous="{{ data.previous_sales if data.product_type == 'old' else 0 }}"
+                data-predicted="{{ data.volume if data.product_type == 'new' else data.previous_sales }}"
+                data-marketing="{{ data.marketing_budget }}"
+                data-timeframe="{{ data.marketing_timeframe }}">
+            </canvas>
+        </div>
     </div>
+    {% else %}
+    <p>No sales data submitted yet.</p>
+    {% endif %}
 
     <footer>
         &copy; 2025 Sprite Blue Jet. Built for FBLA Coding & Programming.

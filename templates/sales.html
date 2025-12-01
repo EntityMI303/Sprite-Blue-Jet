@@ -11,7 +11,8 @@
 </head>
 
 <body>
-    <div class="layout-container">
+    <div class="sales-wrapper">
+        <!-- Left: Sales Form -->
         <div class="sales-container">
             <h1>Sales Prediction</h1>
             <form method="POST" action="{{ url_for('sales') }}">
@@ -66,15 +67,15 @@
             <a href="{{ url_for('improvement') }}"><button>Go to Improvement Guide</button></a>
         </div>
 
+        <!-- Right: Sales Chart -->
         <div class="chart">
             <div class="chart-controls">
                 <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
-                <label><input type="checkbox" id="toggleMarketing" checked> Sales Calculated Based On Market
-                    Investments</label>
+                <label><input type="checkbox" id="toggleMarketing" checked> Sales Calculated Based On Market Investments</label>
                 <button id="downloadCSV">Download CSV</button>
             </div>
 
-            <div class="chart-container" style="height: 400px;">
+            <div class="chart-container" style="height: 500px;">
                 <canvas id="salesChart"></canvas>
             </div>
         </div>
