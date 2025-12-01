@@ -107,11 +107,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 let marketingBoost = 0;
                 if (timeframe === "months") {
-                    marketingBoost = marketingBudget * (0.30 + Math.random() * 0.30);
+                  //  marketingBoost = marketingBudget * (0.50 + Math.random() * 0.30);
+                  marketingBoost = (currentSales / 12) / (marketingBudget * (0.50 + Math.random() * 0.30));
                 } else if (timeframe === "years") {
-                    marketingBoost = (marketingBudget / 12) * (0.30 + Math.random() * 0.30);
+                   // marketingBoost = (marketingBudget / 12) * (0.50 + Math.random() * 0.30);
+                    marketingBoost = (currentSales / 12) / ((marketingBudget /12) * (0.50 + Math.random() * 0.30));
                 }
-                marketingData.push(parseFloat((currentSales + marketingBoost).toFixed(2)));
+                marketingData.push(parseFloat((currentSales + (currentSales * (marketingBoost / 100))).toFixed(2)));
             }
 
             if (window.salesChartInstance) window.salesChartInstance.destroy();
