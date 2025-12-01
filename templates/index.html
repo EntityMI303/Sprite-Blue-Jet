@@ -9,42 +9,60 @@
 
 <body>
 
-    <header class="hero">
+    <!-- NAVIGATION (Optional) -->
+    <nav>
+        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+        <a class="nav-link" href="{{ url_for('sales') }}">Sales</a>
+        <a class="nav-link" href="{{ url_for('finance') }}">Finance</a>
+        <a class="nav-link" href="{{ url_for('operations') }}">Operations</a>
+        <a class="nav-link" href="{{ url_for('customers') }}">Customers</a>
+        <a class="nav-link" href="{{ url_for('hr') }}">HR</a>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="index-header">
         <h1>Sprite Blue Jet</h1>
         <p>Your all-in-one guide to smarter business decisions</p>
     </header>
 
-    <section class="features-scroll">
-        <div class="feature-box">
+    <!-- FEATURE CARDS SCROLL -->
+    <section class="card-container">
+        <div class="card">
             <h2>📈 Future Sales Predictions</h2>
             <p>Estimate your company’s future revenue using real data and smart forecasting tools.</p>
             <a href="{{ url_for('sales') }}"><button>Try Sales Prediction</button></a>
         </div>
-        <div class="feature-box">
+
+        <div class="card">
             <h2>💰 Financial Planning</h2>
             <p>Track budgets, manage expenses, and forecast profits to keep your business financially healthy.</p>
             <a href="{{ url_for('finance') }}"><button>Explore Financial Tools</button></a>
         </div>
-        <div class="feature-box">
+
+        <div class="card">
             <h2>⚙️ Operations Management</h2>
             <p>Optimize workflows, improve efficiency, and monitor productivity across your teams.</p>
             <a href="{{ url_for('operations') }}"><button>View Operations Dashboard</button></a>
         </div>
-        <div class="feature-box">
+
+        <div class="card">
             <h2>👥 Customer Insights</h2>
             <p>Analyze customer behavior, satisfaction, and retention to strengthen relationships and loyalty.</p>
             <a href="{{ url_for('customers') }}"><button>Check Customer Analytics</button></a>
         </div>
-        <div class="feature-box">
+
+        <div class="card">
             <h2>🧑‍💼 HR & Team Management</h2>
             <p>Manage employee performance, recruitment, and engagement to build stronger teams.</p>
             <a href="{{ url_for('hr') }}"><button>Manage HR Tools</button></a>
         </div>
     </section>
 
+    <!-- FOOTER -->
     <footer>
         &copy; 2025 Sprite Blue Jet. Built for FBLA Coding & Programming.
     </footer>
 
 </body>
+
 </html>

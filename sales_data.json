@@ -1,12 +1,38 @@
 {
   "product_type": "old",
   "product": "Toys",
-  "price": 3.0,
-  "marketing_budget": 300.0,
+  "price": 1.99,
+  "marketing_budget": 30000.0,
   "marketing_timeframe": "months",
-  "season": null,
   "year": 1,
   "month": 0,
-  "previous_sales": 5000.0,
-  "previous_sales_years": 0
+  "previous_sales": 50000.0,
+  "predicted_sales": [
+    50259.37,
+    52345.61,
+    52775.79,
+    54876.17,
+    53991.43,
+    56597.06,
+    58058.83,
+    58467.63,
+    58308.45,
+    59473.69,
+    61965.9,
+    60875.32
+  ],
+  "marketing_sales": [
+    65842.28,
+    67392.92,
+    68151.07,
+    70773.18,
+    70696.07,
+    73775.3,
+    76083.16,
+    76394.73,
+    75569.52,
+    77853.79,
+    81126.93,
+    79311.66
+  ]
 }
