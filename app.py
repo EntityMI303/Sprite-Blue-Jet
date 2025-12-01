@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, send_file
+from flask import Flask, render_template, session, send_file
 import json, os, sys
 
 app = Flask(__name__)
@@ -13,74 +13,13 @@ def home():
 
 
 # ==========================
-# Sales form route
+# Sales form route (GET only)
 # ==========================
-@app.route('/sales', methods=['GET', 'POST'])
+@app.route('/sales')
 def sales():
-    if request.method == 'POST':
-        # ==========================
-        # Collect form data
-        # ==========================
-        product_type = request.form.get('product_type')
-        product = request.form.get('product')
-        marketing_timeframe = request.form.get('marketing_timeframe')
-        product_category = request.form.get('product_category')
-        season = request.form.get('season', 'All Seasons')  # default if empty
-
-        try:
-            month = int(request.form.get('month', 0))
-            year = int(request.form.get('year', 1))
-        except ValueError:
-            return "Invalid month or year", 400
-
-        if month not in [0, 3, 6, 9]:
-            return "Invalid month selection. Only 0, 3, 6, or 9 allowed.", 400
-
-        # ==========================
-        # Build data dictionary
-        # ==========================
-        data = {
-            "product_type": product_type,
-            "product": product,
-            "price": float(request.form.get("price", 0)),
-            "marketing_budget": float(request.form.get("marketing_budget", 0)),
-            "marketing_timeframe": marketing_timeframe,
-            "year": year,
-            "month": month,
-            "product_category": product_category,
-            "season": season
-        }
-
-        # Old product uses previous sales
-        if product_type == "old":
-            previous_sales = float(request.form.get("previous_sales", 0))
-            previous_sales_years = int(request.form.get("previous_sales_years", 1))
-            previous_annual_sales = previous_sales / previous_sales_years if previous_sales_years > 0 else 0
-
-            data.update({
-                "previous_sales": previous_sales,
-                "previous_sales_years": previous_sales_years,
-                "previous_annual_sales": previous_annual_sales
-            })
-
-        # New product uses volume estimate
-        else:
-            volume = int(request.form.get("volume", 0))
-            data["volume"] = volume
-
-        # ==========================
-        # Save to session + local JSON
-        # ==========================
-        session["sales_data"] = data
-
-        file_path = os.path.join(os.path.dirname(__file__), "sales_data.json")
-        with open(file_path, "w") as f:
-            json.dump(data, f, indent=2)
-
-        return render_template("improvement.html", data=data)
-
-    # GET request
-    return render_template("sales.html")
+    # Pass any existing sales data to JS
+    data = session.get("sales_data")
+    return render_template("sales.html", sales_data_json=json.dumps(data or {}))
 
 
 # ==========================
@@ -100,7 +39,7 @@ def download_sales():
 @app.route('/improvement')
 def improvement():
     data = session.get("sales_data")
-    return render_template("improvement.html", data=data)
+    return render_template("improvement.html", data=data, sales_data_json=json.dumps(data or {}))
 
 
 # ==========================

@@ -69,54 +69,6 @@ nav {
 }
 
 /* ============================
-   Features Section
-   ============================ */
-.features-scroll {
-    display: flex;
-    overflow-x: auto;
-    padding: 40px 20px;
-    gap: 20px;
-    scroll-snap-type: x mandatory;
-}
-
-.features-scroll::-webkit-scrollbar {
-    height: 8px;
-}
-
-.features-scroll::-webkit-scrollbar-thumb {
-    background: #0078d4;
-    border-radius: 4px;
-}
-
-.feature-box {
-    flex: 0 0 auto;
-    width: 300px;
-    background-color: slategray;
-    color: white;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-    scroll-snap-align: start;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.feature-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.feature-box h2 {
-    font-size: 1.6em;
-    margin-bottom: 12px;
-}
-
-.feature-box p {
-    font-size: 1.1em;
-    margin-bottom: 20px;
-}
-
-/* ============================
    Buttons & Inputs
    ============================ */
 button,
@@ -292,6 +244,19 @@ footer {
     font-size: 0.95em;
     color: #333;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================
+   Histogram Feedback Summary
+   ============================ */
+#histogramFeedback {
+    background: #e8f4ff;
+    border-left: 4px solid #0078d4;
+    padding: 12px;
+    margin-top: 15px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    color: #004466;
 }
 
 /* ============================

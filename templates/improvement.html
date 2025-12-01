@@ -9,7 +9,7 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 
-<body>
+<body data-page="improvement">
 
     <header class="hero">
         <h1>📊 Improvement Guide</h1>
@@ -54,16 +54,24 @@
             </p>
 
             <div style="margin-top: 20px;">
-                <a href="{{ url_for('home') }}"><button>Back to Home</button></a>
-                <a href="{{ url_for('download_sales') }}"><button>Download Data</button></a>
+                <a href="{{ url_for('home') }}"><button type="button">Back to Home</button></a>
+                <a href="{{ url_for('download_sales') }}"><button type="button">Download Data</button></a>
             </div>
         </div>
 
         <!-- Histogram Chart -->
-        <div class="chart-container">
+        <div class="chart">
             <h2>Sales Comparison Histogram</h2>
-            <canvas id="histogramChart"></canvas>
-            <button id="downloadCSV">Download CSV</button>
+            <div class="chart-controls">
+                <label><input type="checkbox" id="togglePrevious" checked> Show Previous Sales</label>
+                <label><input type="checkbox" id="togglePredicted" checked> Show Predicted Sales</label>
+                <label><input type="checkbox" id="toggleMarketing" checked> Apply Marketing Budget</label>
+                <button id="downloadCSV" type="button">Download CSV</button>
+            </div>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="histogramChart"></canvas>
+            </div>
+            <div id="histogramFeedback" style="margin-top: 10px;"></div>
         </div>
 
         {% else %}
