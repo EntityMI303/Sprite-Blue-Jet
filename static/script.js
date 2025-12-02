@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Previous Sales', `Predicted Sales (${timeframe})`, 'Marketing Budget'],
+                labels: ['Previous Sales', `Predicted Sales (${timeframe}) - if previous sales/Projected Units`, 'Marketing Budget'],
                 datasets: [{ label: 'Comparison ($)', data: chartData, backgroundColor: ['blue', 'purple', 'orange'] }]
             },
             options: {
